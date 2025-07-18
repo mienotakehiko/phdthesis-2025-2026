@@ -1,0 +1,105 @@
+  (* Code.7: ID_Base_bone_franklin_formalization *)
+theory ID_Base_bobe_franklin_CCA_formalization
+begin
+
+builtins: bilinear-pairing, hashing, xor
+functions: H1/1, H2/1, Make_Masterskey/2, UserID/4,enc/2,dec/2
+
+rule Setup:
+  let Masterpkey = pmult(~Masterskey, 'P')
+  in
+  [Fr(~Masterskey)] --[OnlyOnce()]-> [!Make_Masterskey(~Masterskey,'KGC'), Out(<'Masterpkey','KGC'>)]
+
+rule Create_Id:
+  let Masterpkey = pmult(Masterskey, 'P')
+  ID1 = H1($User)
+  Userskey = pmult(Masterskey, ID1)
+  in
+  [Fr(~ID), !Make_Masterskey(Masterskey, 'KGC')] --[OnlyOnce(), Create_ID($User, <Masterpkey, Userskey>)]->
+  [!UserID(Masterpkey, Userskey, $User, ~ID)]
+
+
+rule Attacker_Get_Masterskey:
+  [!Make_Masterskey(Masterskey ,'KGC')] --[Oracle('MsterKey','KGC')]-> [Out(Masterskey)]
+
+rule Attacker_Get_Usersey:
+  [ !UserID(Masterpkey, Userskey, $User, ~ID)] --[Oracle('UKey',$User)]-> [Out(Userskey)]
+
+rule Attacker_make_ciphertxt:
+[ Fr(m_), Fr(~Masterskey)] --[Oracle('MsterKey', 'KGC')]-> [ Out(enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), St_Oracle(enc(<'MsterKey', 'KGC', m_>, ~Masterskey))]
+
+rule Sender_encrypt:
+let message = <~nonce,'b',~m>
+   PBobKey = H1('b')
+   U = pmult(~r, 'P')
+   V = H2(em(PBobKey, Masterpkey)^(~r)) XOR message
+   c = <U,V>
+  in
+  [Fr(~m), Fr(~nonce), Fr(~r), !UserID(Masterpkey, Userskey, 'a', ~ID)] --[Secret(~nonce)]->  [Out(c), St_Sender(Masterpkey, Userskey, ~ID, ~nonce), St_ReceiveKey(~m, Masterpkey)]
+
+rule Receiver_receive:
+  let 
+  H2m = H2(em(Userskey, U))
+  message = V XOR H2m
+  nonce = fst(message)
+  message_ = <nonce, 'resnonce'>
+  Qalice = H1('a')
+  Uout = pmult(~r, 'P')
+  Vout = H2(em(Qalice, Masterpkey)^(~r)) XOR message_
+  m_ = <Uout,Vout>
+  in
+  [In(<U,V>), Fr(~r), !UserID(Masterpkey, Userskey, 'b', ~ID)] --[ Run('b', 'a',nonce)]-> [Out(m_)]
+
+rule Encrypt_Attacker:
+ [!Make_Masterskey(~Masterskey, 'KGC'), In(<'MsterKey', 'KGC', m_>), In(<'UserKey', $User, ~m>), St_Oracle(m_), Fr(~nonce)] 
+ --[Send('MsterKey', 'KGC', enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), Secret(~nonce), Role('Oracle'), Attacker_send_plain(m_)]->
+ [Out(enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), St_ReceiveKey_Oracle_ciphertext(enc(<'MsterKey', 'KGC', m_>, ~Masterskey))]
+
+rule Dec_Oracle:
+ [In(enc(<'MsterKey', 'KGC', m_>,~Masterskey)),In(<'MsterKey', 'KGC', ca>), St_Oracle(enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), In(<'UKey',$User, cb>), Fr(~nonce), Fr(m_), Fr(~Masterskey)] 
+ --[Send('MsterKey', 'KGC', enc(<$A, m_>, ~Masterskey)), Secret_(m_), Role('Oracle'), Oracle_receive_ciphertext(enc(<'MsterKey', 'KGC', m_>, ~Masterskey))]-> 
+ [Out(dec(<diff(<'MsterKey', 'KGC', ca>, <'UserKey', $User, cb>), ~nonce>, ~Masterskey)), St_ReceiveKeyOracle_ciphertext(enc(<'MsterKey', 'KGC', m_>, ~Masterskey))]
+
+rule Decrypt_Attacker:
+ let
+ PAliceKey = H1(Masterpkey, 'a')
+ m1 = dec(enc(<'MsterKey','KGC', m_>, PAliceKey), ~Masterskey)
+ m2 = dec(enc(<'UserKey', $User, ~m>, PAliceKey), ~Masterskey)
+ in
+ [St_ReceiveKeyOracle_ciphertext(enc(<'MsterKey','KGC', m_>, ~Masterskey)), In(dec(enc(<'MsterKey','KGC', m_>, PAliceKey), ~Masterskey)), St_ReceiveKey(~m, Masterpkey), In(enc(<'UserKey', $User, ~m>, PAliceKey)), Fr(m_), Fr(~Masterskey)] --[Notequalvalue(<m1, m2>), Secretmessage(m2)]-> [  ]
+
+rule Sender_receive_check:
+ let H2m = H2(em(Userskey, U))
+ message = V XOR H2m
+ in
+ [In(<U,V>), St_Sender(Masterpkey, Userskey, ~ID, ~nonce)] --[Finish(), Eq(message, ~nonce), Commit('a', 'b',~nonce)]-> [ ]
+
+restriction OnlyOnce:
+ "All #i #j. OnlyOnce()@#i & OnlyOnce()@#j ==> #i = #j"
+
+lemma check_aliveness:
+  "All x y t #i. Commit(x,y,t)@i ==> (Ex id #j. Create_ID(y,id) @ j)
+   | (Ex #r. Oracle('MsterKey', 'KGC')@r)"
+
+lemma check_noninjective_agreement:
+  "All x y t #i. Commit(x, y, t) @i ==> (Ex t #j. Run(y, x, t) @j)
+        | (Ex #r. Oracle('UserKey', 'b')@r)
+        | (Ex #j. Oracle('MsterKey', 'KGC')@j)"
+
+lemma check_injective_agreement:
+"All x y t #i. Commit(x, y, t) @i ==> (Ex #j. Run(y, x, t) @j & j < i & not (Ex z w #k. Commit(z, w, t) @k & not (#k = #i)))
+| (Ex #r. Oracle('MsterKey', 'KGC')@r)"
+
+lemma nonce_secrecy:
+  "All s #i. Secret(s) @i ==> (not (Ex #j. K(s)@j)
+      | (Ex #l. Oracle('UserKey','a')@l)
+      | (Ex #l. Oracle('UserKey','b')@l)
+      | (Ex #l. Oracle('MsterKey','KGC')@l))"
+
+lemma ow_value_notequal:
+ "All #i #j x. Notequalvalue(x)@i & Notequalvalue(x)@j ==> #i=#j"
+
+lemma ow_m_secret:
+ "All m #i. Secretmessage(m)@i ==> not (Ex #j. K(m)@j)"
+
+end
