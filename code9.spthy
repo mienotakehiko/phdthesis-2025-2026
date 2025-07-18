@@ -1,0 +1,54 @@
+  (* Code.9: Indcpa&eufcma_AEAD_nc_then_mac_rogaway_scheme_TAMF02&TAMF04 *)
+theory AEAD_enc_then_mac_rogaway_scheme_TAMF04
+begin
+builtins: signing, revealing-signing
+functions: mac/2,enc/3,dec/3,verifyMac/3,true/0
+equations: dec(k2, (enc(m, k2, n)), n) = m
+equations: verifyMac(mac(<c, n, d>, k1), <c, n, d>, k1) = true
+
+rule Setup: [Fr(~k1), Fr(~k2), Fr(~key)] --[OnlyOnce(), Setup(~k1, ~k2, ~key)]-> [!Key(~k1), !Key(~k2), !Skey($A, ~key)]
+
+rule attackerkey:
+  [ !Skey($A, key) ] --[ Oracle($A) ]-> [ Out(key) ]
+
+rule Attacker_make_message:
+ [ Fr(m_)] --[ ]-> [ Out(<$A,m_>),St_Oracle(m_) ]
+
+rule Oracle_sign:
+ [ In(<$A, m_>), Fr(~key) ,St_Oracle(m_)] --[Oracle($A), Sender($B), Role('Oracle')]-> [ Out(sign(<$A, m_>,~key)), St_ReceiveKeyOraclesign(m_,~key) ]
+
+rule Alice_enc_then_mac:
+let
+c = enc(~m, ~k2, ~nonce)
+alicetag = mac(<c, ~nonce, ~data>, ~k1)
+in
+[Fr(~m), Fr(~key),!Key(~k1), !Key(~k2), Fr(~nonce), Fr(~data)] --[Secret_A(~m), Sendmac(~k1, alicetag, ~nonce, ~data), Oracle($A), Signed($A, ~m)]-> [Out(<c, alicetag, ~nonce, ~data>), St_ReceiveKey(~m,~key)]
+
+rule Bob_verifymac_decrypt:
+let
+m_1 = dec(~k2, c, ~nonce)
+in
+[St_ReceiveKeyOraclesign(m_,key_),In(<c, ~nonce, ~data, alicetag>), St_ReceiveKey(~m,key), !Key(~k1), !Key(~k2),In(sign(<$B, ~m>,~k2))] --[Eq(verifyMac(alicetag, <c,~nonce, ~data>, ~k1), true), Authentic(~k1, alicetag, ~nonce, ~data), Notequalvalue(<sign(<$A, m_>,~k1), sign(<$B, ~m>,~k2)>), Secret_B(m_1),Verified($A, $B, ~m)]-> []
+
+restriction unique:
+  "All #i #j. OnlyOnce() @#i & OnlyOnce() @#j ==> #i = #j"
+
+restriction Equality:
+"All x y #i. Eq(x, y)@#i ==> x=y"
+
+lemma message_secret_alice:
+"All m #i #j. Secret_A(m)@i & K(m)@j ==>F"
+
+lemma message_secret_bob:
+"All m #i #j. Secret_B(m)@i & K(m)@j ==>F"
+
+lemma message_authentication:
+"All k t n d #i. Authentic(k, t, n, d) @i ==> Ex #j. Sendmac(k, t, n, d)@j & #j<#i"
+
+lemma ow_value_notequal:
+ "All #i #j x. Notequalvalue(x)@i & Notequalvalue(x)@j ==> #i=#j"
+
+lemma existential_unforgeability:
+"All X Y m #i. Verified(X, Y, m)@i ==> ((Ex #j. Signed(X, m)@j & j<i) | (Ex #l. Oracle(X)@l & l<i) )"
+
+end
