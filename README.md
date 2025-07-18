@@ -1,60 +1,70 @@
-# TAMF 
+# Attack Method Model Framework for the Security Verification of Tamarin Prover (TAMF)
 ・This folder contains the needed material to reproduce our case-studies.　　<br>
 ・Models can be validated using the latest Tamarin prover.
 
 ---
 File Description
 
-1.&emsp;Normal_no1.pv <br>
-2.&emsp;Normal_no1.log <br>
-3.&emsp;Normal_no1_passive.log <br>
-4.&emsp;Withdraw_no2.pv <br>
-5.&emsp;Withdraw_no2.log <br>
-6.&emsp;Withdraw_no2_passive.log <br>
-7.&emsp;Leakprivatekey_no3.pv <br>
-8.&emsp;Leakprivatekey_no3.log <br>
-9.&emsp;Leakprivatekey_no3_passive.log <br>
+1.&emsp;code1.spthy <br>
+2.&emsp;code2.spthy <br>
+3.&emsp;code3.spthy <br>
+4.&emsp;code4.spthy <br>
+5.&emsp;code5.spthy <br>
+6.&emsp;code5-ind_cpa.spthy <br>
+7.&emsp;code5.log <br>
+8.&emsp;code6.spthy <br>
+9.&emsp;code6.log <br>
+10.&emsp;code7.spthy <br>
+11.&emsp;code8.spthy <br>
+12.&emsp;code9.spthy <br>
 
 ---
-1.&emsp;Normal_no1.pv
+1.&emsp;code1.spthy
 
-  &emsp;&emsp;Verification code. <br>
-  &emsp;&emsp;&emsp;&emsp;The normal model for sending and receiving basic MLS messages. <br>
+  &emsp;&emsp;TAMF-01 Verification code. <br>
 
-2.&emsp;Normal_no1.log
+2.&emsp;code2.spthy
 
-  &emsp;&emsp;Verification results: Log of executing Normal_no1.pv <br>
+  &emsp;&emsp;TAMF-02 Verification code. <br>
 
-3.&emsp;Normal_no1_passive.log
+3.&emsp;code3.spthy
 
-  &emsp;&emsp;Verification results: Log of execution results using “set attacker = passive.” Normal_no1.pv <br>
+  &emsp;&emsp;TAMF-03 Verification code. <br>
   
-4.&emsp;Withdraw_no2.pv
+4.&emsp;code4.spthy
 
-  &emsp;&emsp;Verification code. <br>
-  &emsp;&emsp;&emsp;&emsp;The model of members leaving the group during the course of the game. <br>
+  &emsp;&emsp;TAMF-04 Verification code. <br>
 
-5.&emsp;Withdraw_no2.log
+5.&emsp;code5.spthy
 
-  &emsp;&emsp;Verification results: Log of executing Withdraw_no2.pv <br>
+  &emsp;&emsp;Verification code for IBE with TAMF-01. <br>
 
-6.&emsp;Withdraw_no2_passive.log
+6.&emsp;code5-ind_cpa.spthy
 
-  &emsp;&emsp;Verification results: Log of execution results using “set attacker = passive.” Withdraw_no2.pv <br>
+  &emsp;&emsp;Verification code for IBE with TAMF-02. <br>
 
-7.&emsp;Leakprivatekey_no3.pv
+7.&emsp;code5.log
 
-  &emsp;&emsp;Verification code. <br>
-  &emsp;&emsp;&emsp;&emsp;The model in the event that an active member accidentally leaks a secret key shared in a group. <br>
+  &emsp;&emsp;Verification results: For No.6 > code5-ind_cpa.spthy <br>
 
-8.&emsp;Leakprivatekey_no3.pv
+8.&emsp;code6.spthy
 
-&emsp;&emsp;&emsp;&emsp;Verification results: Log of executing Leakprivatekey_no3.pv <br>
+  &emsp;&emsp;&emsp;Verification code for IBE-CHK with TAMF-03 & TAMF-04. <br>
 
-9.&emsp;Leakprivatekey_no3_passive.log
+9.&emsp;code6.log
 
-&emsp;&emsp;&emsp;&emsp;Verification results: Log of execution results using “set attacker = passive.” Leakprivatekey_no3.pv <br>
+ &emsp;&emsp;erification results: For No.8 > code6.spthy <br>
 
----
-  
+10.&emsp;code7.spthy
+
+  &emsp;&emsp;Verification code for BF-IBE. <br>
+
+11.&emsp;code8.spthy
+
+  &emsp;&emsp;Verification code AEAD Mac-then-Encrypt for TAMF-02, TAMF-04. <br>
+
+12.&emsp;code9.spthy
+
+  &emsp;&emsp;Verification code AEAD Encrypt-then-MAC for TAMF-02, TAMF-04. <br>
+
 ---
