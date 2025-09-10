@@ -15,8 +15,6 @@ File Description
 8.&emsp;code6.spthy <br>
 9.&emsp;code6.log <br>
 10.&emsp;code7.spthy <br>
-11.&emsp;code8.spthy <br>
-12.&emsp;code9.spthy <br>
 
 ---
 1.&emsp;code1.spthy
@@ -59,12 +57,5 @@ File Description
 
   &emsp;&emsp;Verification code for BF-IBE. <br>
 
-11.&emsp;code8.spthy
-
-  &emsp;&emsp;Verification code AEAD Mac-then-Encrypt for TAMF-02, TAMF-04. <br>
-
-12.&emsp;code9.spthy
-
-  &emsp;&emsp;Verification code AEAD Encrypt-then-MAC for TAMF-02, TAMF-04. <br>
 
 ---
