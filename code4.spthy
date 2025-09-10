@@ -1,4 +1,4 @@
-  (* Code.4: EUF-CMA model *)
+//  (* Code.4: EUF-CMA model *)
 theory euf_cma_asymmetric_encryption_TAMF04
 begin
 builtins: signing, revealing-signing, asymmetric-encryption
