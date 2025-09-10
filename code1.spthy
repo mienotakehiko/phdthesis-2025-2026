@@ -1,4 +1,4 @@
-  (* Code.1: OW-CPA model *)
+//  (* Code.1: OW-CPA model *)
 theory OWCPA_asymmetric_encryption_TAMF01
 begin
 builtins: asymmetric-encryption
