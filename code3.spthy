@@ -1,4 +1,4 @@
-  (* Code.3: IND-CCA for TAMF-03 model *)
+//  (* Code.3: IND-CCA for TAMF-03 model *)
 theory IND_CCA_asymmetric_encryption_TMAF03
 begin
 builtins: asymmetric-encryption
