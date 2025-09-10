@@ -14,7 +14,7 @@ File Description
  7. &emsp;code5.log <br>
  8. &emsp;code6.spthy <br>
  9. &emsp;code6.log <br>
-10. code7.spthy <br>
+10. &emsp;code7.spthy <br>
 
 ---
 1.&emsp;code1.spthy
