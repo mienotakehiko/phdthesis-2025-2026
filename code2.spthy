@@ -1,4 +1,4 @@
-  (* Code.2: IND-CPA for TAMF-02 model *)
+//  (* Code.2: IND-CPA for TAMF-02 model *)
 theory IND_CPA_asymmetric_encryption_TMAF02
 begin
 builtins: asymmetric-encryption
