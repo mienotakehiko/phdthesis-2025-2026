@@ -1,4 +1,4 @@
-  (* Code.6: IBE_CHK_formalization *)
+//  (* Code.6: IBE_CHK_formalization *)
 theory IBE_CHK_formalization
 begin
 
@@ -30,7 +30,7 @@ rule Sender_encrypt:
  [Fr(~m), Fr(~nonce), !UserID(Masterpkey, Userskey, 'a', ~ID)] --[Send('UserKey', $User, enc(<'MsterKey', 'KGC', ~m>, Userskey)), Secret(~nonce), Run('a', 'b', ~nonce), Signed('a', <~nonce, 'a'>),Role('Sender')]-> [Out(<enc(<~nonce, 'a'>, KGCpkey(Masterpkey, 'b')), KGCpkey(Masterpkey, 'b'), sign(<~nonce, 'a'>, Userskey)>), St_Sender(Masterpkey, Userskey, ~ID, ~nonce), St_ReceiveKey(~m, Masterpkey)]
 
 rule Encrypt_Attacker:
-[!Make_Masterskey(~Masterskey, 'KGC'), In(<'MsterKey', 'KGC', m_>), In(<'UserKey', $User, ~m>), St_Oracle(m_), Fr(~nonce)] --[Send('MsterKey', 'KGC', enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), Secret(~nonce), Role('Oracle'), Attacker_send_plain(m_)]->
+[!Make_Masterskey(~Masterskey, 'KGC'), In(<'MsterKey', 'KGC', m_>), In(<'UserKey', $User, ~m>), St_Oracle(enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), Fr(~nonce)] --[Send('MsterKey', 'KGC', enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), Secret(~nonce), Role('Oracle'), Attacker_send_plain(m_)]->
  [Out(enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), St_ReceiveKey_Oracle_ciphertext(enc(<'MsterKey', 'KGC', m_>, ~Masterskey))]
 
 rule Dec_Oracle:
