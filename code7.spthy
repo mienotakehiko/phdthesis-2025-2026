@@ -1,78 +1,68 @@
-//  (* Code.7: ID_Base_bone_franklin_formalization *)
-theory ID_Base_bobe_franklin_CCA_formalization
+//  (* Code.7: ID_Base_bone_franklin_formalization  for TAMF-01*)
+theory ID_Base_bone_franklin_CPA_formalization
 begin
 
-builtins: bilinear-pairing, hashing, xor
-functions: H1/1, H2/1, Make_Masterskey/2, UserID/4,enc/2,dec/2
+builtins: bilinear-pairing, xor, hashing
+functions: Make_Masterskey/2, UserID/4, enc/2, dec/2, HashA/1, HashB/1
 
 rule Setup:
-  let Masterpkey = pmult(~Masterskey, 'P')
+  let 
+  Masterpkey = pmult(~Masterskey, 'Public')
   in
-  [Fr(~Masterskey)] --[OnlyOnce()]-> [!Make_Masterskey(~Masterskey,'KGC'), Out(<'Masterpkey','KGC'>)]
+  [Fr(~Masterskey)] --[OnlyOnce()]-> [!Make_Masterskey(~Masterskey, 'KGC'), Out(<'Masterpkey', 'KGC'>)]
 
 rule Create_Id:
-  let Masterpkey = pmult(Masterskey, 'P')
-  ID1 = H1($User)
+  let Masterpkey = pmult(Masterskey, 'Public')
+  ID1 = HashA($User)
   Userskey = pmult(Masterskey, ID1)
   in
   [Fr(~ID), !Make_Masterskey(Masterskey, 'KGC')] --[OnlyOnce(), Create_ID($User, <Masterpkey, Userskey>)]->
   [!UserID(Masterpkey, Userskey, $User, ~ID)]
 
-
 rule Attacker_Get_Masterskey:
-  [!Make_Masterskey(Masterskey ,'KGC')] --[Oracle('MsterKey','KGC')]-> [Out(Masterskey)]
+  [!Make_Masterskey(Masterskey ,'KGC')] --[Oracle('MsterKey', 'KGC')]-> [Out(Masterskey)]
 
 rule Attacker_Get_Usersey:
-  [ !UserID(Masterpkey, Userskey, $User, ~ID)] --[Oracle('UKey',$User)]-> [Out(Userskey)]
+  [ !UserID(Masterpkey, Userskey, $User, ~ID)] --[Oracle('UserKey', $User)]-> [Out(Userskey)]
 
-rule Attacker_make_ciphertxt:
-[ Fr(m_), Fr(~Masterskey)] --[Oracle('MsterKey', 'KGC')]-> [ Out(enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), St_Oracle(enc(<'MsterKey', 'KGC', m_>, ~Masterskey))]
+rule Attacker_make_message:
+[Fr(m_)] --[ ]-> [ Out(<'MsterKey', 'KGC', m_>), St_Oracle(m_)]
 
 rule Sender_encrypt:
-let message = <~nonce,'b',~m>
-   PBobKey = H1('b')
-   U = pmult(~r, 'P')
-   V = H2(em(PBobKey, Masterpkey)^(~r)) XOR message
-   c = <U,V>
+   let 
+   message = <~nonce, 'bob', ~m>
+   PBobKey = HashA('bob')
+   Encrypt1 = pmult(~r, 'Public')
+   Encrypt2 = HashB(em(PBobKey, Masterpkey)^(~r)) XOR message
+   Sendermessage = <Encrypt1, Encrypt2>
   in
-  [Fr(~m), Fr(~nonce), Fr(~r), !UserID(Masterpkey, Userskey, 'a', ~ID)] --[Secret(~nonce)]->  [Out(c), St_Sender(Masterpkey, Userskey, ~ID, ~nonce), St_ReceiveKey(~m, Masterpkey)]
-
-rule Receiver_receive:
-  let 
-  H2m = H2(em(Userskey, U))
-  message = V XOR H2m
-  nonce = fst(message)
-  message_ = <nonce, 'resnonce'>
-  Qalice = H1('a')
-  Uout = pmult(~r, 'P')
-  Vout = H2(em(Qalice, Masterpkey)^(~r)) XOR message_
-  m_ = <Uout,Vout>
-  in
-  [In(<U,V>), Fr(~r), !UserID(Masterpkey, Userskey, 'b', ~ID)] --[ Run('b', 'a',nonce)]-> [Out(m_)]
+  [Fr(~m), Fr(~nonce), Fr(~r), !UserID(Masterpkey, Userskey, 'alice', ~ID)] --[Secret(~nonce)]-> 
+  [Out(Sendermessage), St_Sender(Masterpkey, Userskey, ~ID, ~nonce)]
 
 rule Encrypt_Attacker:
- [!Make_Masterskey(~Masterskey, 'KGC'), In(<'MsterKey', 'KGC', m_>), In(<'UserKey', $User, ~m>), St_Oracle(m_), Fr(~nonce)] 
- --[Send('MsterKey', 'KGC', enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), Secret(~nonce), Role('Oracle'), Attacker_send_plain(m_)]->
- [Out(enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), St_ReceiveKey_Oracle_ciphertext(enc(<'MsterKey', 'KGC', m_>, ~Masterskey))]
+[!Make_Masterskey(~Masterskey, 'KGC'), In(<'MsterKey', 'KGC', m_>), In(<'UserKey', $User, ~m>), St_Oracle(m_), Fr(~nonce)] --[Send('MsterKey', 'KGC', enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), Secret(~nonce), Role('Oracle'), Attacker_send_plain(m_)]->
+ [Out(enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), St_ReceiveKey_Oracle_plain(m_, ~Masterskey)]
 
-rule Dec_Oracle:
- [In(enc(<'MsterKey', 'KGC', m_>,~Masterskey)),In(<'MsterKey', 'KGC', ca>), St_Oracle(enc(<'MsterKey', 'KGC', m_>, ~Masterskey)), In(<'UKey',$User, cb>), Fr(~nonce), Fr(m_), Fr(~Masterskey)] 
- --[Send('MsterKey', 'KGC', enc(<$A, m_>, ~Masterskey)), Secret_(m_), Role('Oracle'), Oracle_receive_ciphertext(enc(<'MsterKey', 'KGC', m_>, ~Masterskey))]-> 
- [Out(dec(<diff(<'MsterKey', 'KGC', ca>, <'UserKey', $User, cb>), ~nonce>, ~Masterskey)), St_ReceiveKeyOracle_ciphertext(enc(<'MsterKey', 'KGC', m_>, ~Masterskey))]
-
-rule Decrypt_Attacker:
- let
- PAliceKey = H1(Masterpkey, 'a')
- m1 = dec(enc(<'MsterKey','KGC', m_>, PAliceKey), ~Masterskey)
- m2 = dec(enc(<'UserKey', $User, ~m>, PAliceKey), ~Masterskey)
- in
- [St_ReceiveKeyOracle_ciphertext(enc(<'MsterKey','KGC', m_>, ~Masterskey)), In(dec(enc(<'MsterKey','KGC', m_>, PAliceKey), ~Masterskey)), St_ReceiveKey(~m, Masterpkey), In(enc(<'UserKey', $User, ~m>, PAliceKey)), Fr(m_), Fr(~Masterskey)] --[Notequalvalue(<m1, m2>), Secretmessage(m2)]-> [  ]
+rule Receiver_message:
+  let 
+  HashB_ = HashB(em(Userskey, Encrypt1))
+  message = Encrypt2 XOR HashB_
+  nonce = fst(message)
+  message_ = <nonce, 'rceivernonce'>
+  Qalice = HashA('alice')
+  Encrypt3 = pmult(~r, 'Public')
+  Encrypt4 = HashB(em(Qalice, Masterpkey)^(~r)) XOR message_
+  Receivermessage = <Encrypt3, Encrypt4>
+  in
+  [In(<Encrypt1, Encrypt2>), Fr(~r), !UserID(Masterpkey, Userskey, 'bob', ~ID)] --[ Run('bob', 'alice', nonce)]-> [Out(Receivermessage)]
 
 rule Sender_receive_check:
- let H2m = H2(em(Userskey, U))
- message = V XOR H2m
+ let 
+ HashB_ = HashB(em(Userskey, Encrypt1))
+ message = Encrypt2 XOR HashB_
  in
- [In(<U,V>), St_Sender(Masterpkey, Userskey, ~ID, ~nonce)] --[Finish(), Eq(message, ~nonce), Commit('a', 'b',~nonce)]-> [ ]
+ [St_ReceiveKey_Oracle_plain(m_, ~Masterskey), St_Sender(Masterpkey, Userskey, ~ID, ~nonce), In(<Encrypt1,Encrypt2>)] 
+ --[Finish(), Notequalvalue(<message, ~nonce>), Secretmessage(message), Commit('a', 'b', ~nonce)]-> []
 
 restriction OnlyOnce:
  "All #i #j. OnlyOnce()@#i & OnlyOnce()@#j ==> #i = #j"
