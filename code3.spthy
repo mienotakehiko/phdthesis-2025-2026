@@ -19,7 +19,7 @@ rule Sender_encrypt:
 [ Fr(~m), !Pk($A, ~key)] --[Send($B, aenc(<$B, ~m>, ~key)), Secret(~m), Sender($B), Oracle($A), Role('Sender'), Sender_send_ciphertext($B, aenc(<$B, ~m>, ~key))]-> [Out(aenc(<$B, ~m>, ~key)), St_ReceiveKey(aenc(<$B, ~m>, pk(~key)))]
 
 rule Encrypt_Attacker:
-[!Pk($A, ~key), In(<$A, m_>), St_Oracle(m_)]
+[!Pk($A, ~key), In(<$A, m_>), St_Oracle(aenc(<$A, m_>, pk(~key)))]
  --[Send($B, aenc(<$A, m_>, ~key)), Secret(m_), Oracle($A), Sender($B), Role('Oracle'), Attacker_send_ciphertext(aenc(<$A, m_>, ~key))]->
  [Out(aenc(<$A, m_>, ~key)), St_ReceiveKey_Oracle_ciphertext(aenc(<$A, m_>, pk(~key)))]
 
