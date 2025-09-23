@@ -60,8 +60,7 @@ lemma check_aliveness:
 
 lemma check_noninjective_agreement:
   "All x y t #i. Commit(x, y, t) @i ==> (Ex t #j. Run(y, x, t) @j)
-        | (Ex #r. Oracle('UserKey', 'b')@r)
-        | (Ex #j. Oracle('MsterKey', 'KGC')@j)"
+        | (Ex #r. Oracle('UserKey', 'b')@r) | (Ex #j. Oracle('MsterKey', 'KGC')@j)"
 
 lemma check_injective_agreement:
 "All x y t #i. Commit(x, y, t) @i ==> (Ex #j. Run(y, x, t) @j & j < i & not (Ex z w #k. Commit(z, w, t) @k & not (#k = #i)))
@@ -69,9 +68,7 @@ lemma check_injective_agreement:
 
 lemma nonce_secrecy:
   "All s #i. Secret(s) @i ==> (not (Ex #j. K(s)@j)
-      | (Ex #l. Oracle('UserKey','a')@l)
-      | (Ex #l. Oracle('UserKey','b')@l)
-      | (Ex #l. Oracle('MsterKey','KGC')@l))"
+      | (Ex #l. Oracle('UserKey','a')@l) | (Ex #l. Oracle('UserKey','b')@l) | (Ex #l. Oracle('MsterKey','KGC')@l))"
 
 lemma ow_value_notequal:
  "All #i #j x. Notequalvalue(x)@i & Notequalvalue(x)@j ==> #i=#j"
