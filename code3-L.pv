@@ -1,0 +1,146 @@
+(* Code.3-L: CBC mode with padding *)
+free d:channel[private].
+free dd:channel[private].
+free ee:channel[private].
+free cc:channel[private].
+free pubc:channel.
+free ts:bitstring[private].
+free sskey:bitstring[private].
+
+(* concatenation and division of bitstring *)
+fun con(bitstring,bitstring):bitstring.
+fun divhead(bitstring):bitstring.
+fun divrest(bitstring):bitstring.
+equation forall mt:bitstring;
+con(divhead(mt),divrest(mt))=mt.
+
+equation forall lmt:bitstring,rmt:bitstring;
+divhead(con(lmt,rmt))=lmt.
+equation forall lmt:bitstring,rmt:bitstring;
+divrest(con(lmt,rmt))=rmt.
+
+(* XOR *)
+const zeros: bitstring. 
+fun xor(bitstring,bitstring):bitstring.
+equation forall x:bitstring,y:bitstring;
+xor(xor(x,y),y) = x.
+equation forall x:bitstring; xor(x,x) = zeros.
+equation forall x:bitstring; xor(zeros,x) = x.
+equation forall x:bitstring; xor(x,zeros) = x.
+
+(* Block cipher *)
+fun enc(bitstring,bitstring):bitstring.
+fun dec(bitstring,bitstring):bitstring.
+equation forall x: bitstring, 
+s: bitstring; dec(enc(x,s),s) = x.
+
+(* func for Oct *)
+type oct.
+const CPAD:oct.
+const CPAD1:oct.
+const CPAD2:oct.
+const CPAD3:oct.
+const CPAD4:oct.
+
+fun b2o(bitstring):oct.
+fun o2b(oct):bitstring.
+equation forall xb:bitstring;o2b(b2o(xb))=xb.
+equation forall xo:oct;b2o(o2b(xo))=xo.
+
+fun Ocon(oct,oct):oct.
+fun Odivhead(oct):oct.
+fun Odivrest(oct):oct.
+equation forall mt:oct; Ocon(Odivhead(mt),Odivrest(mt))=mt.
+equation forall lmt:oct,rmt:oct; Odivhead(Ocon(lmt,rmt))=lmt.
+equation forall lmt:oct,rmt:oct; Odivrest(Ocon(lmt,rmt))=rmt.
+
+fun oct1(bitstring):oct.
+fun oct2i2(bitstring):oct.
+fun oct2i34(bitstring):oct.
+fun oct3i3(bitstring):oct.
+fun oct3i4(bitstring):oct.
+fun oct4(bitstring):oct.
+fun con4octs2(oct,oct,oct,oct):bitstring.
+
+equation forall x:oct,y:oct,z:oct,w:oct;
+con4octs2(x,y,z,w)=o2b(Ocon(x,Ocon(y,Ocon(z,w)))).
+
+equation forall x:bitstring;
+oct1(x)=Odivhead(b2o(x)).
+equation forall x:bitstring;
+oct2i2(x)=Odivrest(b2o(x)).
+equation forall x:bitstring;
+oct2i34(x)=Odivhead(Odivrest(b2o(x))).
+equation forall x:bitstring;
+oct3i3(x)=Odivrest(Odivrest(b2o(x))).
+equation forall x:bitstring;
+oct3i4(x)=Odivhead(Odivrest(Odivrest(b2o(x)))).
+equation forall x:bitstring;
+oct4(x)=Odivrest(Odivrest(Odivrest(b2o(x)))).
+
+event SuccCBC.
+
+let CBCe(prskey:bitstring) =
+    in(d,(iv:bitstring, m:bitstring, n:nat));
+    if(n <> 1)then
+    (
+      let tb = divhead(m) in
+      let nb = divrest(m) in
+       let cipb = enc(xor(tb,iv),prskey)in
+       out(cc, (iv,cipb));
+       out(pubc, (iv,cipb)); (* for adversary *)
+       out(d,(cipb,nb,n-1))
+    )
+    else 
+    (
+      (* for 3 octets padding *)
+      let p = con4octs2(b2o(m),CPAD3,CPAD3,CPAD3) in  
+      let cipb = enc(xor(p,iv),prskey) in 
+      out(pubc, (iv,cipb)); (* for adversary *)
+      out(cc, (iv,cipb))
+    ).
+
+let CBCd(prskey:bitstring) =
+    in(dd, x2:nat);
+    in(cc, (ciphb1:bitstring,ciphb2:bitstring));
+    let plainb =dec(ciphb2,prskey) in
+    if (ciphb2 = enc(plainb,prskey)) then
+    let plaina = xor(plainb,ciphb1) in
+    if (plainb = xor(plaina,ciphb1)) then
+    let x3:nat = x2-1 in
+    if (x3 <> 0) then
+    (
+      out(dd, x3);
+      in(ee,(x4:nat,tailce:bitstring));
+      if(x4=x3) then 
+      (
+        let conb = con(plaina,tailce) in
+        out(ee,(x2,conb));
+        if(conb=ts) then event SuccCBC
+      )
+    )
+    else
+    (
+      (* for 3 octets padding *)
+      if (oct4(plaina) = CPAD3) then 
+      if (oct3i4(plaina) = CPAD3) then 
+      if (oct2i34(plaina) = CPAD3) then 
+      let planac = oct1(plaina) in 
+      out(ee, (x2,o2b(planac)))
+    ).
+
+(* Queries *)
+query attacker(ts).
+query event(SuccCBC).
+
+(* Execution part *)
+process
+   (
+     new iv:bitstring;
+     out(cc,(iv,4));
+     out(d,(iv,ts,4));
+     !(
+       out(dd, 4)
+      )
+   ) 
+   |!CBCe(sskey) |!CBCd(sskey)
