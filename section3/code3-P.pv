@@ -1,0 +1,84 @@
+(* Code.3-O: Formalization of SSE-IND game *)
+set traceDisplay = long.
+
+free m01:channel.
+free m02:channel.
+free m03:channel.
+free m04:channel.
+free m11:channel.
+free m12:channel.
+free m13:channel.
+free m14:channel.
+free w01 :bitstring.
+free w02 :bitstring.
+free w03 :bitstring.
+free w04 :bitstring.
+free w11 :bitstring.
+free w12 :bitstring.
+free w13 :bitstring.
+free w14 :bitstring.
+
+free skey  :bitstring[private].
+free skeyT :bitstring[private].
+
+free CH:channel.
+
+fun enc(channel, bitstring):bitstring.
+fun dec(bitstring, bitstring):channel.
+equation forall x:channel, k:bitstring; dec(enc(x,k),k) = x. 
+
+fun BuildIndex(channel, bitstring, bitstring):bitstring.
+fun Trapdoor(bitstring, bitstring):bitstring.
+fun Search(bitstring,bitstring):channel.
+equation forall w:bitstring, Ap:channel, kT:bitstring; Search(BuildIndex(Ap,w,kT),Trapdoor(w,kT)) = Ap.
+
+process
+(
+   new W0:channel;
+   new W1:channel;
+   out(W0,(w01,w02,w03,w04));
+   out(W1,(w11,w12,w13,w14));
+
+   out(m01,(w01));
+   out(m02,(w01,w02));
+   out(m03,(w01,w02,w03));
+   out(m04,(w04));
+   out(m11,(w11));
+   out(m12,(w11,w12));
+   out(m13,(w11,w12,w13));
+   out(m14,(w14));
+   
+   new D0:channel;
+   new D1:channel;
+   out(D0,(m01,m02,m03,m04));
+   out(D1,(m11,m12,m13,m14));
+
+   let cb1=enc(choice[m01,m11],skey) in
+   let cb2=enc(choice[m02,m12],skey) in
+   let cb3=enc(choice[m03,m13],skey) in
+   let cb4=enc(choice[m04,m14],skey) in
+   new Cb :channel;
+   out(Cb,(cb1,cb2,cb3,cb4));
+
+   new APb1 :channel;
+   new APb2 :channel;
+   new APb3 :channel;
+   new APb4 :channel;
+   out(APb1,cb1);out(APb1,cb2);out(APb1,cb3);
+   out(APb2,cb2);out(APb2,cb3);
+   out(APb3,cb3);
+   out(APb4,cb4);
+
+   let Indexb1=BuildIndex(APb1,choice[w01,w11],skeyT) in
+   let Indexb2=BuildIndex(APb2,choice[w02,w12],skeyT) in
+   let Indexb3=BuildIndex(APb3,choice[w03,w13],skeyT) in
+   let Indexb4=BuildIndex(APb4,choice[w04,w14],skeyT) in
+   new Ib :channel;
+   out(Ib,(Indexb1,Indexb2,Indexb3,Indexb4));
+   out(CH,( D0,D1, W0,W1 ));
+   out(CH,( Cb,Ib ));
+   out(CH,Trapdoor(choice[w01,w11],skeyT));
+   out(CH,Trapdoor(choice[w02,w12],skeyT));
+   out(CH,Trapdoor(choice[w03,w13],skeyT));
+   out(CH,Trapdoor(choice[w04,w14],skeyT))
+)

@@ -1,0 +1,32 @@
+//  (* Code.5-D: Tamarin Prover-AEAD model *)
+theory AEAD_mac_then_enc_enc_then_mac
+begin
+functions: mac/2,enc/3,left/1,right/1
+
+rule Setup: [Fr(~k1), Fr(~k2)] --[OnlyOnce(), Setup(~k1, ~k2)]-> [!Key(~k1), !Key(~k2)]
+
+rule Alice_makemac_then_enc:
+let
+alicetag = mac(<~m, ~nonce, ~data>, ~k1)
+c1 = enc(<~m, alicetag>, ~k2, ~nonce)
+in
+[Fr(~m), !Key(~k1), !Key(~k2), Fr(~nonce), Fr(~data)] --> [Out(<c1, ~nonce, ~data, alicetag>)]
+
+rule Alice_enc_then_mac:
+let
+c2 = enc(~m, ~k2, ~nonce)
+alicetag = mac(<c2, ~nonce, ~data>, ~k1)
+in
+[Fr(~m), !Key(~k1), !Key(~k2), Fr(~nonce), Fr(~data)] --> [Out(<c2, ~nonce, ~data, alicetag>)]
+
+rule diff_check:
+let
+ me = c1
+ em = c2
+in
+[In(<c1, ~nonce, ~data, alicetag>), In(<c2, ~nonce, ~data, alicetag>)] --> [Out(diff(me,em))]
+
+restriction unique:
+"All #i #j. OnlyOnce() @#i & OnlyOnce() @#j ==> #i = #j"
+
+end

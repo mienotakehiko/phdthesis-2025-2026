@@ -1,0 +1,27 @@
+  (* Code.5-G: ProVerif - Probabilistic publickey cryptography model *)
+free c:channel.
+type skey.
+type pkey.
+free secretkey:skey [private].
+free m:bitstring [private].
+event decsuccess. 
+
+fun pk(skey):pkey.
+fun encrypt(bitstring,pkey,bitstring):bitstring.
+fun decrypt(bitstring, skey):bitstring.
+equation forall
+ x:bitstring, y:skey, r:bitstring;
+ decrypt(encrypt(x,pk(y),r),y) = x. 
+
+let sender(pk:pkey) =
+    new randomvalue:bitstring;
+    let c_1 = encrypt(m, pk, randomvalue) in
+      out(c, c_1).
+
+process
+new nonce: bitstring;
+  ( out(c, pk(secretkey)); 
+    in(c, c_2:bitstring); 
+     out(c, choice[nonce, c_2])
+  )
+|sender(pk(secretkey)) 

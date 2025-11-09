@@ -1,0 +1,161 @@
+(* Code.3-Q: CBC mode with padding oracle attack *)
+free d:channel[private].
+free dd:channel[private].
+free ee:channel[private].
+free cc:channel[private].
+free pubc:channel.
+free ts:bitstring[private].
+free sskey:bitstring[private].
+
+(* concatenation and division of bitstring *)
+fun con(bitstring,bitstring):bitstring.
+fun divhead(bitstring):bitstring.
+fun divrest(bitstring):bitstring.
+equation forall mt:bitstring;
+con(divhead(mt),divrest(mt))=mt.
+
+equation forall lmt:bitstring,rmt:bitstring;
+divhead(con(lmt,rmt))=lmt.
+
+equation forall lmt:bitstring,rmt:bitstring;
+divrest(con(lmt,rmt))=rmt.
+
+(* XOR *)
+const zeros: bitstring. 
+fun xor(bitstring,bitstring):bitstring.
+equation forall x:bitstring,y:bitstring; 
+xor(xor(x,y),y) = x.
+equation forall x:bitstring; xor(x,x) = zeros.
+equation forall x:bitstring; xor(zeros,x) = x.
+equation forall x:bitstring; xor(x,zeros) = x.
+
+(* Block cipher *)
+fun enc(bitstring,bitstring):bitstring.
+fun dec(bitstring,bitstring):bitstring.
+equation forall x: bitstring, s: bitstring; 
+dec(enc(x,s),s) = x.
+
+(* func for Oct *)
+type oct.
+const CPAD1:oct.
+const CPAD2:oct.
+
+fun b2o(bitstring):oct.
+fun o2b(oct):bitstring.
+equation forall xb:bitstring;o2b(b2o(xb))=xb.
+equation forall xo:oct;b2o(o2b(xo))=xo.
+
+fun Ocon(oct,oct):oct.
+fun Odivhead(oct):oct.
+fun Odivrest(oct):oct.
+equation forall mt:oct; 
+Ocon(Odivhead(mt),Odivrest(mt))=mt.
+equation forall lmt:oct,rmt:oct; 
+Odivhead(Ocon(lmt,rmt))=lmt.
+equation forall lmt:oct,rmt:oct; 
+Odivrest(Ocon(lmt,rmt))=rmt.
+
+fun oct1(bitstring):oct.
+fun oct2i2(bitstring):oct.
+
+fun con2octs(oct,oct):bitstring.
+equation forall x:oct,y:oct;
+con2octs(x,y)=o2b(Ocon(x,y)).
+
+equation forall x:bitstring;
+oct1(x)=Odivhead(b2o(x)).
+equation forall x:bitstring;
+oct2i2(x)=Odivrest(b2o(x)).
+
+(* cheat code for attacker *)
+fun AB1(bitstring):bitstring.
+fun AB2(bitstring):bitstring. 
+
+fun Ccase1(bitstring,bitstring):bool
+reduc forall Y:bitstring; Ccase1(AB1(Y),Y) = true
+otherwise forall X:bitstring, Y:bitstring; Ccase1(X,Y) = false.
+
+fun Ccase2(bitstring,bitstring):bool
+reduc forall Y:bitstring; Ccase2(AB2(Y),Y) = true
+otherwise forall X:bitstring, Y:bitstring; Ccase2(X,Y) = false.
+
+event SuccCBC.
+
+(* Adversary process *) 
+let processAdv(psskey:bitstring) =
+    in(pubc,(X:bitstring,Y:bitstring));
+    let py=dec(Y,psskey) in
+    let xpy =xor(X,py) in
+    (
+    if(Ccase1(X,Y)=true) then 
+      out(pubc,oct1(py))
+    else
+    (
+      if(Ccase2(X,Y)=true) then 
+        out(pubc,oct2i2(py))
+    )
+    ).
+
+let CBCe(prskey:bitstring) =
+    in(d,(iv:bitstring, m:bitstring, n:nat));
+    if(n <> 1)then
+    (
+      let tb = divhead(m) in
+      let nb = divrest(m) in
+      let cipb = enc(xor(tb,iv),prskey)in
+      out(cc, (iv,cipb));
+      out(pubc, (iv,cipb)); (* for attacker *)
+      out(d,(cipb,nb,n-1))
+    )
+    else 
+    (
+      (* for 1 octet padding *)
+      let p = con2octs(b2o(m),CPAD1) in  
+      let cipb = enc(xor(p,iv),prskey) in 
+      out(pubc, (iv,cipb)); (* for attacker *)
+      out(cc, (iv,cipb))
+    ).
+
+let CBCd(prskey:bitstring) =
+    in(dd, x2:nat);
+    in(cc, (ciphb1:bitstring,ciphb2:bitstring));
+    let plainb =dec(ciphb2,prskey) in
+    if (ciphb2 = enc(plainb,prskey)) then
+    let plaina = xor(plainb,ciphb1) in
+    if (plainb = xor(plaina,ciphb1)) then
+    let x3:nat = x2-1 in
+    if (x3 <> 0) then
+    (
+      out(dd, x3);
+      in(ee,(x4:nat,tailce:bitstring));
+      if(x4=x3) then 
+      (
+        let conb = con(plaina,tailce) in
+        out(ee,(x2,conb));
+        if(conb=ts) then event SuccCBC
+      )
+    )
+    else
+    (
+      (* for 1 octet padding *)
+      if (oct2i2(plaina) = CPAD1) then 
+      let planac = oct1(plaina) in 
+      out(ee, (x2,o2b(planac)))
+    ).
+
+(* Queries *)
+query attacker(ts).
+query event(SuccCBC).
+
+(* Execution part *)
+process
+   (
+     new iv:bitstring;
+     out(cc,(iv,2));
+     out(d,(iv,ts,2));
+     !(
+       out(dd, 2)
+      )
+   ) 
+   |!CBCe(sskey) |!CBCd(sskey)
+   |!processAdv(sskey)
