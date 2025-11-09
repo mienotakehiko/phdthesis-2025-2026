@@ -2,11 +2,12 @@
 # ProVerif
   Currently creating a document
 # Attack Method Model Framework for the Security Verification of Tamarin Prover (TAMF)
+  Currently creating a document
 ・This folder contains the needed material to reproduce our case-studies.　　<br>
 ・Models can be validated using the latest Tamarin prover.
 
 ---
-File Description[TBD]
+File Description
 
  1. &emsp;code1.spthy <br>
  2. &emsp;code2.spthy <br>
