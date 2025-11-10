@@ -25,4 +25,35 @@ Execution confirmed in the following versions
    * ProVerif version 2.05<br>
    * Tamarin Prover version 1.10.0<br>
 
-(C) 2025 Takehiko Mieno
+(C) 2025 Takehiko Mieno<br>
+
+
+--- Japanese --- <br>
+# 三重野 武彦(著者)の博士論文で使用している下記コードと実行結果を全てここに掲載する。
+
+
+掲載するすべてに関する著作権は私に帰属しており、無断での複製や転載は厳しく禁じられています。<br>
+他のウェブサイト、印刷物、電子メディアなどへの転載は一切許可されません。<br>
+無断転載には法的措置を取る可能性があります。<br>
+ご理解とご協力をお願いします。<br>
+
+
+## Section3: ProVerif における反復構造およびデータ構造の形式化手法と検証
+* ProVerifで実行したCodeとLogを掲載<br>
+   Logはオプションのdetail版も掲載<br>
+
+## Section4: Tamarin Prover における高度な攻撃モデル検証フレームワークの形式化手法と検証
+* Tamarin Proverで実行したCodeとLogを掲載<br>
+  (但し、Interative Modeはブラウザの環境に依存するため、掲載しない)<br>
+
+## Section5: ProVerif とTamarin Prover の融合的技術の提案
+* ProVerifで実行したCodeとLogを掲載<br>
+* Tamarin Proverで実行したCodeとLogを掲載<br>
+  (但し、Interative Modeはブラウザの環境に依存するため、掲載しない)<br>
+
+### (補足)
+下記 versionにて実行確認済<br>
+・ProVerif version 2.05<br>
+・Tamarin Prover version 1.10.0<br>
+
+(C) 2025 三重野 武彦
