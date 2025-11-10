@@ -1,0 +1,727 @@
+theory IND_CCA_asymmetric_encryption_TMAF03 begin
+
+// Function signature and definition of the equational theory E
+
+functions: adec/2, aenc/2, fst/1, pair/2, pk/1, snd/1
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+rule (modulo E) Setup:
+   [ Fr( ~key ) ]
+  --[ OnlyOnce( ), Setup( ~key ) ]->
+   [ !Sk( $A, ~key ), !Pk( $A, pk(~key) ) ]
+
+rule (modulo E) Get_pk:
+   [ !Pk( S, publickey ) ] --> [ Out( publickey ) ]
+
+rule (modulo E) attackerkey:
+   [ !Sk( $A, key ) ] --[ Oracle( $A ) ]-> [ Out( key ) ]
+
+rule (modulo E) Attacker_make_ciphertxt:
+   [ Fr( m_ ), Fr( ~key ) ]
+  --[ Oracle( $A ) ]->
+   [ Out( aenc(<$A, m_>, pk(~key)) ), St_Oracle( aenc(<$A, m_>, pk(~key)) )
+   ]
+
+rule (modulo E) Sender_encrypt:
+   [ Fr( ~m ), !Pk( $A, ~key ) ]
+  --[
+  Send( $B, aenc(<$B, ~m>, ~key) ), Secret( ~m ), Sender( $B ),
+  Oracle( $A ), Role( 'Sender' ),
+  Sender_send_ciphertext( $B, aenc(<$B, ~m>, ~key) )
+  ]->
+   [ Out( aenc(<$B, ~m>, ~key) ), St_ReceiveKey( aenc(<$B, ~m>, pk(~key)) )
+   ]
+
+rule (modulo E) Encrypt_Attacker:
+   [ !Pk( $A, ~key ), In( <$A, m_> ), St_Oracle( aenc(<$A, m_>, pk(~key)) )
+   ]
+  --[
+  Send( $B, aenc(<$A, m_>, ~key) ), Secret( m_ ), Oracle( $A ),
+  Sender( $B ), Role( 'Oracle' ),
+  Attacker_send_ciphertext( aenc(<$A, m_>, ~key) )
+  ]->
+   [
+   Out( aenc(<$A, m_>, ~key) ),
+   St_ReceiveKey_Oracle_ciphertext( aenc(<$A, m_>, pk(~key)) )
+   ]
+
+rule (modulo E) Dec_Oracle:
+   [
+   Fr( ~key ), In( aenc(<$A, m_>, pk(~key)) ),
+   St_Oracle( aenc(<$A, m_>, pk(~key)) ), In( <$A, ca> ), In( <$B, cb> ),
+   Fr( r )
+   ]
+  --[
+  Send( $A, aenc(<$A, m_>, pk(~key)) ), Secret( m_ ), Oracle( $A ),
+  Sender( $B ), Role( 'Oracle' ),
+  Oracle_receive_ciphertext( aenc(<$A, m_>, pk(~key)) )
+  ]->
+   [
+   Out( adec(<diff(<$A, ca>, <$B, cb>), r>, ~key) ),
+   St_ReceiveKey_Oracle_ciphertext( aenc(<$A, m_>, pk(~key)) )
+   ]
+
+rule (modulo E) Decrypt_Attacker:
+   [
+   St_ReceiveKey_Oracle_ciphertext( aenc(<$A, m_>, pk(~key)) ),
+   In( adec(aenc(<$A, m_>, pk(~key)), ~key) ),
+   St_ReceiveKey( aenc(<$B, ~m>, pk(~key)) ),
+   In( aenc(<$B, ~m>, pk(~key)) ), Fr( ~key )
+   ]
+  --[
+  Notequalvalue( <adec(aenc(<$A, m_>, pk(~key)), ~key), 
+                  adec(aenc(<$B, ~m>, pk(~key)), ~key)>
+  ),
+  Secretmessage( adec(aenc(<$B, ~m>, pk(~key)), ~key) )
+  ]->
+   [ ]
+
+restriction OnlyOnce [right]:
+  "∀ #i #j. ((OnlyOnce( ) @ #i) ∧ (OnlyOnce( ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+restriction OnlyOnce [left]:
+  "∀ #i #j. ((OnlyOnce( ) @ #i) ∧ (OnlyOnce( ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+lemma ow_value_notequal [right]:
+  all-traces
+  "∀ #i #j x.
+    ((Notequalvalue( x ) @ #i) ∧ (Notequalvalue( x ) @ #j)) ⇒ (#i = #j)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ #i #j x.
+  (Notequalvalue( x ) @ #i) ∧ (Notequalvalue( x ) @ #j) ∧ ¬(#i = #j)"
+*/
+simplify
+by contradiction /* cyclic */
+
+lemma ow_value_notequal [left]:
+  all-traces
+  "∀ #i #j x.
+    ((Notequalvalue( x ) @ #i) ∧ (Notequalvalue( x ) @ #j)) ⇒ (#i = #j)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ #i #j x.
+  (Notequalvalue( x ) @ #i) ∧ (Notequalvalue( x ) @ #j) ∧ ¬(#i = #j)"
+*/
+simplify
+by contradiction /* cyclic */
+
+lemma secret_sender_message [right]:
+  all-traces
+  "∀ n #i.
+    ((Secret( n ) @ #i) ∧ (Role( 'Sender' ) @ #i)) ⇒
+    ((¬(∃ #j. K( n ) @ #j)) ∨
+     (∃ B #j. (Oracle( B ) @ #j) ∧ (Sender( B ) @ #i)))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ n #i.
+  (Secret( n ) @ #i) ∧ (Role( 'Sender' ) @ #i)
+ ∧
+  (∃ #j. (K( n ) @ #j)) ∧
+  (∀ B #j. (Oracle( B ) @ #j) ∧ (Sender( B ) @ #i) ⇒ ⊥)"
+*/
+simplify
+solve( Secret( n ) @ #i )
+  case Dec_Oracle
+  by contradiction /* cyclic */
+next
+  case Encrypt_Attacker
+  by solve( !Pk( $A, ~key ) ▶₀ #i )
+next
+  case Sender_encrypt
+  by solve( !Pk( $A, ~key ) ▶₁ #i )
+qed
+
+lemma secret_sender_message [left]:
+  all-traces
+  "∀ n #i.
+    ((Secret( n ) @ #i) ∧ (Role( 'Sender' ) @ #i)) ⇒
+    ((¬(∃ #j. K( n ) @ #j)) ∨
+     (∃ B #j. (Oracle( B ) @ #j) ∧ (Sender( B ) @ #i)))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ n #i.
+  (Secret( n ) @ #i) ∧ (Role( 'Sender' ) @ #i)
+ ∧
+  (∃ #j. (K( n ) @ #j)) ∧
+  (∀ B #j. (Oracle( B ) @ #j) ∧ (Sender( B ) @ #i) ⇒ ⊥)"
+*/
+simplify
+solve( Secret( n ) @ #i )
+  case Dec_Oracle
+  by contradiction /* cyclic */
+next
+  case Encrypt_Attacker
+  by solve( !Pk( $A, ~key ) ▶₀ #i )
+next
+  case Sender_encrypt
+  by solve( !Pk( $A, ~key ) ▶₁ #i )
+qed
+
+lemma ow_m_secret [right]:
+  all-traces "∀ m #i. (Secretmessage( m ) @ #i) ⇒ (¬(∃ #j. K( m ) @ #j))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i. (Secretmessage( m ) @ #i) ∧ ∃ #j. (K( m ) @ #j)"
+*/
+simplify
+by contradiction /* cyclic */
+
+lemma ow_m_secret [left]:
+  all-traces "∀ m #i. (Secretmessage( m ) @ #i) ⇒ (¬(∃ #j. K( m ) @ #j))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i. (Secretmessage( m ) @ #i) ∧ ∃ #j. (K( m ) @ #j)"
+*/
+simplify
+by contradiction /* cyclic */
+
+diffLemma Observational_equivalence:
+rule-equivalence
+  case Rule_Attacker_make_ciphertxt
+  backward-search
+    case LHS
+    step( simplify )
+    MIRRORED
+  next
+    case RHS
+    step( simplify )
+    MIRRORED
+  qed
+next
+  case Rule_Dec_Oracle
+  backward-search
+    case LHS
+    step( simplify )
+    by step( contradiction /* cyclic */ )
+  next
+    case RHS
+    step( simplify )
+    by step( contradiction /* cyclic */ )
+  qed
+next
+  case Rule_Decrypt_Attacker
+  backward-search
+    case LHS
+    step( simplify )
+    by step( contradiction /* cyclic */ )
+  next
+    case RHS
+    step( simplify )
+    by step( contradiction /* cyclic */ )
+  qed
+next
+  case Rule_Destrd_0_adec
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( aenc(x, pk(x.1)) ) ▶₀ #i ) )
+      case Attacker_make_ciphertxt
+      step( solve( (#vl, 0) ~~> (#i, 0) ) )
+        case aenc
+        by step( solve( !KU( ~key ) @ #vk ) )
+      next
+        case d_0_adec
+        by step( contradiction /* impossible chain */ )
+      qed
+    next
+      case Dec_Oracle
+      by step( contradiction /* cyclic */ )
+    next
+      case Encrypt_Attacker
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case Get_pk
+      step( solve( !Pk( S, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    next
+      case Sender_encrypt
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case attackerkey
+      step( solve( !Sk( $A, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !KD( aenc(x, pk(x.1)) ) ▶₀ #i ) )
+      case Attacker_make_ciphertxt
+      step( solve( (#vl, 0) ~~> (#i, 0) ) )
+        case aenc
+        by step( solve( !KU( ~key ) @ #vk ) )
+      next
+        case d_0_adec
+        by step( contradiction /* impossible chain */ )
+      qed
+    next
+      case Dec_Oracle
+      by step( contradiction /* cyclic */ )
+    next
+      case Encrypt_Attacker
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case Get_pk
+      step( solve( !Pk( S, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    next
+      case Sender_encrypt
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case attackerkey
+      step( solve( !Sk( $A, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    qed
+  qed
+next
+  case Rule_Destrd_0_fst
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( <x, x.1> ) ▶₀ #i ) )
+      case Attacker_make_ciphertxt
+      step( solve( (#vl, 0) ~~> (#i, 0) ) )
+        case d_0_adec
+        step( solve( (#vr.1, 0) ~~> (#i, 0) ) )
+          case d_0_fst
+          by step( contradiction /* impossible chain */ )
+        next
+          case d_0_snd
+          by step( contradiction /* impossible chain */ )
+        next
+          case pair
+          by step( solve( !KU( ~key ) @ #vk ) )
+        qed
+      qed
+    next
+      case Dec_Oracle
+      by step( contradiction /* cyclic */ )
+    next
+      case Encrypt_Attacker
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case Get_pk
+      step( solve( !Pk( S, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    next
+      case Sender_encrypt
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case attackerkey
+      step( solve( !Sk( $A, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !KD( <x, x.1> ) ▶₀ #i ) )
+      case Attacker_make_ciphertxt
+      step( solve( (#vl, 0) ~~> (#i, 0) ) )
+        case d_0_adec
+        step( solve( (#vr.1, 0) ~~> (#i, 0) ) )
+          case d_0_fst
+          by step( contradiction /* impossible chain */ )
+        next
+          case d_0_snd
+          by step( contradiction /* impossible chain */ )
+        next
+          case pair
+          by step( solve( !KU( ~key ) @ #vk ) )
+        qed
+      qed
+    next
+      case Dec_Oracle
+      by step( contradiction /* cyclic */ )
+    next
+      case Encrypt_Attacker
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case Get_pk
+      step( solve( !Pk( S, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    next
+      case Sender_encrypt
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case attackerkey
+      step( solve( !Sk( $A, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    qed
+  qed
+next
+  case Rule_Destrd_0_snd
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( <x, x.1> ) ▶₀ #i ) )
+      case Attacker_make_ciphertxt
+      step( solve( (#vl, 0) ~~> (#i, 0) ) )
+        case d_0_adec
+        step( solve( (#vr.1, 0) ~~> (#i, 0) ) )
+          case d_0_fst
+          by step( contradiction /* impossible chain */ )
+        next
+          case d_0_snd
+          by step( contradiction /* impossible chain */ )
+        next
+          case pair
+          by step( solve( !KU( ~key ) @ #vk ) )
+        qed
+      qed
+    next
+      case Dec_Oracle
+      by step( contradiction /* cyclic */ )
+    next
+      case Encrypt_Attacker
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case Get_pk
+      step( solve( !Pk( S, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    next
+      case Sender_encrypt
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case attackerkey
+      step( solve( !Sk( $A, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !KD( <x, x.1> ) ▶₀ #i ) )
+      case Attacker_make_ciphertxt
+      step( solve( (#vl, 0) ~~> (#i, 0) ) )
+        case d_0_adec
+        step( solve( (#vr.1, 0) ~~> (#i, 0) ) )
+          case d_0_fst
+          by step( contradiction /* impossible chain */ )
+        next
+          case d_0_snd
+          by step( contradiction /* impossible chain */ )
+        next
+          case pair
+          by step( solve( !KU( ~key ) @ #vk ) )
+        qed
+      qed
+    next
+      case Dec_Oracle
+      by step( contradiction /* cyclic */ )
+    next
+      case Encrypt_Attacker
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case Get_pk
+      step( solve( !Pk( S, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    next
+      case Sender_encrypt
+      by step( solve( (#vl, 0) ~~> (#i, 0) ) )
+    next
+      case attackerkey
+      step( solve( !Sk( $A, t ) ▶₀ #vr ) )
+        case Setup
+        by step( contradiction /* impossible chain */ )
+      qed
+    qed
+  qed
+next
+  case Rule_Encrypt_Attacker
+  backward-search
+    case LHS
+    step( simplify )
+    by step( solve( !Pk( $A, ~key ) ▶₀ #i ) )
+  next
+    case RHS
+    step( simplify )
+    by step( solve( !Pk( $A, ~key ) ▶₀ #i ) )
+  qed
+next
+  case Rule_Equality
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( x ) ▶₁ #i ) )
+      case Attacker_make_ciphertxt
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case aenc
+        step( solve( !KU( aenc(<$A, ~n>, pk(~key)) ) @ #vk ) )
+          case Attacker_make_ciphertxt
+          MIRRORED
+        next
+          case c_aenc
+          step( solve( !KU( ~n ) @ #vk.4 ) )
+            case Attacker_make_ciphertxt
+            by step( solve( !KU( ~key ) @ #vk.5 ) )
+          qed
+        qed
+      next
+        case d_0_adec
+        step( solve( (#vr.1, 0) ~~> (#i, 1) ) )
+          case d_0_fst
+          step( solve( (#vr.2, 0) ~~> (#i, 1) ) )
+            case Var_pub_A
+            by step( solve( !KU( ~key ) @ #vk.1 ) )
+          qed
+        next
+          case d_0_snd
+          step( solve( (#vr.2, 0) ~~> (#i, 1) ) )
+            case Var_fresh_n
+            by step( solve( !KU( ~key ) @ #vk.1 ) )
+          qed
+        next
+          case pair
+          by step( solve( !KU( ~key ) @ #vk.1 ) )
+        qed
+      qed
+    next
+      case Dec_Oracle
+      by step( contradiction /* cyclic */ )
+    next
+      case Encrypt_Attacker
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case aenc
+        by step( solve( !Pk( $A, ~key ) ▶₀ #vr ) )
+      qed
+    next
+      case Get_pk
+      step( solve( !Pk( S, t ) ▶₀ #vr ) )
+        case Setup
+        step( solve( (#vl, 0) ~~> (#i, 1) ) )
+          case pk
+          step( solve( !KU( pk(~key) ) @ #vk ) )
+            case Get_pk
+            MIRRORED
+          next
+            case c_pk
+            step( solve( !KU( ~key ) @ #vk.1 ) )
+              case attackerkey
+              MIRRORED
+            qed
+          qed
+        qed
+      qed
+    next
+      case Sender_encrypt
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case aenc
+        by step( solve( !Pk( $A, ~key ) ▶₁ #vr ) )
+      qed
+    next
+      case attackerkey
+      step( solve( !Sk( $A, t ) ▶₀ #vr ) )
+        case Setup
+        step( solve( (#vl, 0) ~~> (#i, 1) ) )
+          case Var_fresh_key
+          step( solve( !KU( ~key ) @ #vk ) )
+            case attackerkey
+            MIRRORED
+          qed
+        qed
+      qed
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !KD( x ) ▶₁ #i ) )
+      case Attacker_make_ciphertxt
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case aenc
+        step( solve( !KU( aenc(<$A, ~n>, pk(~key)) ) @ #vk ) )
+          case Attacker_make_ciphertxt
+          MIRRORED
+        next
+          case c_aenc
+          step( solve( !KU( ~n ) @ #vk.4 ) )
+            case Attacker_make_ciphertxt
+            by step( solve( !KU( ~key ) @ #vk.5 ) )
+          qed
+        qed
+      next
+        case d_0_adec
+        step( solve( (#vr.1, 0) ~~> (#i, 1) ) )
+          case d_0_fst
+          step( solve( (#vr.2, 0) ~~> (#i, 1) ) )
+            case Var_pub_A
+            by step( solve( !KU( ~key ) @ #vk.1 ) )
+          qed
+        next
+          case d_0_snd
+          step( solve( (#vr.2, 0) ~~> (#i, 1) ) )
+            case Var_fresh_n
+            by step( solve( !KU( ~key ) @ #vk.1 ) )
+          qed
+        next
+          case pair
+          by step( solve( !KU( ~key ) @ #vk.1 ) )
+        qed
+      qed
+    next
+      case Dec_Oracle
+      by step( contradiction /* cyclic */ )
+    next
+      case Encrypt_Attacker
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case aenc
+        by step( solve( !Pk( $A, ~key ) ▶₀ #vr ) )
+      qed
+    next
+      case Get_pk
+      step( solve( !Pk( S, t ) ▶₀ #vr ) )
+        case Setup
+        step( solve( (#vl, 0) ~~> (#i, 1) ) )
+          case pk
+          step( solve( !KU( pk(~key) ) @ #vk ) )
+            case Get_pk
+            MIRRORED
+          next
+            case c_pk
+            step( solve( !KU( ~key ) @ #vk.1 ) )
+              case attackerkey
+              MIRRORED
+            qed
+          qed
+        qed
+      qed
+    next
+      case Sender_encrypt
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case aenc
+        by step( solve( !Pk( $A, ~key ) ▶₁ #vr ) )
+      qed
+    next
+      case attackerkey
+      step( solve( !Sk( $A, t ) ▶₀ #vr ) )
+        case Setup
+        step( solve( (#vl, 0) ~~> (#i, 1) ) )
+          case Var_fresh_key
+          step( solve( !KU( ~key ) @ #vk ) )
+            case attackerkey
+            MIRRORED
+          qed
+        qed
+      qed
+    qed
+  qed
+next
+  case Rule_Get_pk
+  backward-search
+    case LHS
+    step( simplify )
+    MIRRORED
+  next
+    case RHS
+    step( simplify )
+    MIRRORED
+  qed
+next
+  case Rule_Send
+  backward-search
+    case LHS
+    step( simplify )
+    MIRRORED
+  next
+    case RHS
+    step( simplify )
+    MIRRORED
+  qed
+next
+  case Rule_Sender_encrypt
+  backward-search
+    case LHS
+    step( simplify )
+    by step( solve( !Pk( $A, ~key ) ▶₁ #i ) )
+  next
+    case RHS
+    step( simplify )
+    by step( solve( !Pk( $A, ~key ) ▶₁ #i ) )
+  qed
+next
+  case Rule_Setup
+  backward-search
+    case LHS
+    step( simplify )
+    MIRRORED
+  next
+    case RHS
+    step( simplify )
+    MIRRORED
+  qed
+next
+  case Rule_attackerkey
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !Sk( $A, key ) ▶₀ #i ) )
+      case Setup
+      MIRRORED
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !Sk( $A, key ) ▶₀ #i ) )
+      case Setup
+      MIRRORED
+    qed
+  qed
+qed
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code4-C.spthy
+  
+  RHS :  ow_value_notequal (all-traces): verified (2 steps)
+  LHS :  ow_value_notequal (all-traces): verified (2 steps)
+  RHS :  secret_sender_message (all-traces): verified (5 steps)
+  LHS :  secret_sender_message (all-traces): verified (5 steps)
+  RHS :  ow_m_secret (all-traces): verified (2 steps)
+  LHS :  ow_m_secret (all-traces): verified (2 steps)
+  DiffLemma:  Observational_equivalence : verified (188 steps)
+
+==============================================================================
