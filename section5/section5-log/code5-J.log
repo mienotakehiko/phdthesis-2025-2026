@@ -1,0 +1,509 @@
+theory probabilistic_public_key begin
+
+// Function signature and definition of the equational theory E
+
+functions: adec/2, aenc/2, decrypt/2, encrypt/3, fst/1, pair/2, pk/1,
+           snd/1
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    decrypt(encrypt(m, k, r), k) = m,
+    fst(<x.1, x.2>) = x.1,
+    snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+rule (modulo E) Setup:
+   [ Fr( ~k ) ] --> [ !Key( ~k ), !Pk( pk(~k) ) ]
+
+rule (modulo E) enc_message_Alice:
+   [ !Pk( pk(~k) ), Fr( ~m ), Fr( ~r ) ]
+  --[ Send( encrypt(~m, pk(~k), ~r) ), Secret_A( ~m ) ]->
+   [ Out( encrypt(~m, pk(~k), ~r) ) ]
+
+rule (modulo E) dec_message_Bob:
+   [ In( c ), !Key( ~k ) ]
+  --[ Receive( decrypt(c, ~k) ), Secret_B( decrypt(c, ~k) ) ]->
+   [ ]
+
+rule (modulo E) Strong_secrecy:
+   [ Fr( ~m1 ), !Pk( pk(~k) ), Fr( ~r ) ]
+  --[ SendReveal( encrypt(~m1, pk(~k), ~r) ) ]->
+   [ Out( diff(~m1, encrypt(~m1, pk(~k), ~r)) ) ]
+
+lemma message_secret_alice [right]:
+  all-traces "∀ m #i #j. ((Secret_A( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret_A( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+solve( !Pk( pk(~k) ) ▶₀ #i )
+  case Setup
+  solve( !KU( ~m ) @ #vk )
+    case enc_message_Alice
+    by solve( !KU( ~k ) @ #vk.2 )
+  qed
+qed
+
+lemma message_secret_alice [left]:
+  all-traces "∀ m #i #j. ((Secret_A( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret_A( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+solve( !Pk( pk(~k) ) ▶₀ #i )
+  case Setup
+  solve( !KU( ~m ) @ #vk )
+    case enc_message_Alice
+    by solve( !KU( ~k ) @ #vk.2 )
+  qed
+qed
+
+lemma message_secret_bob [right]:
+  all-traces "∀ m #i #j. ((Secret_B( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret_B( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+solve( !Key( ~k ) ▶₁ #i )
+  case Setup
+  solve( splitEqs(0) )
+    case split_case_1
+    solve( !KU( decrypt(c, ~k) ) @ #vk.1 )
+      case c_decrypt
+      by solve( !KU( ~k ) @ #vk.2 )
+    qed
+  next
+    case split_case_2
+    solve( !KU( encrypt(m, ~k, x) ) @ #vk )
+      case c_encrypt
+      by solve( !KU( ~k ) @ #vk.2 )
+    qed
+  qed
+qed
+
+lemma message_secret_bob [left]:
+  all-traces "∀ m #i #j. ((Secret_B( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret_B( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+solve( !Key( ~k ) ▶₁ #i )
+  case Setup
+  solve( splitEqs(0) )
+    case split_case_1
+    solve( !KU( decrypt(c, ~k) ) @ #vk.1 )
+      case c_decrypt
+      by solve( !KU( ~k ) @ #vk.2 )
+    qed
+  next
+    case split_case_2
+    solve( !KU( encrypt(m, ~k, x) ) @ #vk )
+      case c_encrypt
+      by solve( !KU( ~k ) @ #vk.2 )
+    qed
+  qed
+qed
+
+lemma executable [right]:
+  exists-trace "∃ c m #i #j. (Send( c ) @ #i) ∧ (Receive( m ) @ #j)"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ c m #i #j. (Send( c ) @ #i) ∧ (Receive( m ) @ #j)"
+*/
+simplify
+solve( !Pk( pk(~k) ) ▶₀ #i )
+  case Setup
+  solve( !Key( ~k.1 ) ▶₁ #j )
+    case Setup
+    solve( splitEqs(1) )
+      case split_case_1
+      SOLVED // trace found
+    qed
+  qed
+qed
+
+lemma executable [left]:
+  exists-trace "∃ c m #i #j. (Send( c ) @ #i) ∧ (Receive( m ) @ #j)"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ c m #i #j. (Send( c ) @ #i) ∧ (Receive( m ) @ #j)"
+*/
+simplify
+solve( !Pk( pk(~k) ) ▶₀ #i )
+  case Setup
+  solve( !Key( ~k.1 ) ▶₁ #j )
+    case Setup
+    solve( splitEqs(1) )
+      case split_case_1
+      SOLVED // trace found
+    qed
+  qed
+qed
+
+diffLemma Observational_equivalence:
+rule-equivalence
+  case Rule_Destrd_0_adec
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( aenc(x, pk(x.1)) ) ▶₀ #i ) )
+      case Strong_secrecy
+      by step( contradiction /* impossible chain */ )
+    next
+      case enc_message_Alice
+      by step( contradiction /* impossible chain */ )
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !KD( aenc(x, pk(x.1)) ) ▶₀ #i ) )
+      case Strong_secrecy
+      by step( contradiction /* impossible chain */ )
+    next
+      case enc_message_Alice
+      by step( contradiction /* impossible chain */ )
+    qed
+  qed
+next
+  case Rule_Destrd_0_decrypt
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( encrypt(m, k, r) ) ▶₀ #i ) )
+      case Strong_secrecy
+      by step( contradiction /* impossible chain */ )
+    next
+      case enc_message_Alice
+      step( solve( (#vl, 0) ~~> (#i, 0) ) )
+        case d_0_decrypt
+        by step( contradiction /* impossible chain */ )
+      next
+        case encrypt
+        step( solve( !Pk( pk(~k) ) ▶₀ #vr ) )
+          case Setup
+          step( solve( !KU( pk(~k) ) @ #vk ) )
+            case c_pk
+            by step( solve( !KU( ~k ) @ #vk.1 ) )
+          qed
+        qed
+      qed
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !KD( encrypt(m, k, r) ) ▶₀ #i ) )
+      case Strong_secrecy
+      step( solve( (#vl, 0) ~~> (#i, 0) ) )
+        case d_0_decrypt
+        by step( contradiction /* impossible chain */ )
+      next
+        case encrypt
+        step( solve( !Pk( pk(~k) ) ▶₁ #vr ) )
+          case Setup
+          step( solve( !KU( pk(~k) ) @ #vk ) )
+            case c_pk
+            by step( solve( !KU( ~k ) @ #vk.1 ) )
+          qed
+        qed
+      qed
+    next
+      case enc_message_Alice
+      step( solve( (#vl, 0) ~~> (#i, 0) ) )
+        case d_0_decrypt
+        by step( contradiction /* impossible chain */ )
+      next
+        case encrypt
+        step( solve( !Pk( pk(~k) ) ▶₀ #vr ) )
+          case Setup
+          step( solve( !KU( pk(~k) ) @ #vk ) )
+            case c_pk
+            by step( solve( !KU( ~k ) @ #vk.1 ) )
+          qed
+        qed
+      qed
+    qed
+  qed
+next
+  case Rule_Destrd_0_fst
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( <x, x.1> ) ▶₀ #i ) )
+      case Strong_secrecy
+      by step( contradiction /* impossible chain */ )
+    next
+      case enc_message_Alice
+      by step( contradiction /* impossible chain */ )
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !KD( <x, x.1> ) ▶₀ #i ) )
+      case Strong_secrecy
+      by step( contradiction /* impossible chain */ )
+    next
+      case enc_message_Alice
+      by step( contradiction /* impossible chain */ )
+    qed
+  qed
+next
+  case Rule_Destrd_0_snd
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( <x, x.1> ) ▶₀ #i ) )
+      case Strong_secrecy
+      by step( contradiction /* impossible chain */ )
+    next
+      case enc_message_Alice
+      by step( contradiction /* impossible chain */ )
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !KD( <x, x.1> ) ▶₀ #i ) )
+      case Strong_secrecy
+      by step( contradiction /* impossible chain */ )
+    next
+      case enc_message_Alice
+      by step( contradiction /* impossible chain */ )
+    qed
+  qed
+next
+  case Rule_Equality
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( x ) ▶₁ #i ) )
+      case Strong_secrecy
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case Var_fresh_m1
+        step( solve( !Pk( pk(~k) ) ▶₁ #vr ) )
+          case Setup
+          step( solve( !KU( ~m1 ) @ #vk ) )
+            case Strong_secrecy
+            MIRRORED
+          qed
+        qed
+      qed
+    next
+      case enc_message_Alice
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case d_0_decrypt
+        step( solve( (#vr.1, 0) ~~> (#i, 1) ) )
+          case Var_fresh_m
+          step( solve( !Pk( pk(~k) ) ▶₀ #vr ) )
+            case Setup
+            step( solve( !KU( pk(~k) ) @ #vk.1 ) )
+              case c_pk
+              by step( solve( !KU( ~k ) @ #vk.2 ) )
+            qed
+          qed
+        qed
+      next
+        case encrypt
+        step( solve( !Pk( pk(~k) ) ▶₀ #vr ) )
+          case Setup
+          step( solve( !KU( encrypt(~m, pk(~k), ~r) ) @ #vk ) )
+            case c_encrypt
+            step( solve( !KU( ~m ) @ #vk.1 ) )
+              case enc_message_Alice
+              by step( solve( !KU( ~r ) @ #vk.3 ) )
+            qed
+          next
+            case enc_message_Alice
+            MIRRORED
+          qed
+        qed
+      qed
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !KD( x ) ▶₁ #i ) )
+      case Strong_secrecy
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case d_0_decrypt
+        step( solve( (#vr.1, 0) ~~> (#i, 1) ) )
+          case Var_fresh_m1
+          step( solve( !Pk( pk(~k) ) ▶₁ #vr ) )
+            case Setup
+            step( solve( !KU( pk(~k) ) @ #vk.1 ) )
+              case c_pk
+              by step( solve( !KU( ~k ) @ #vk.2 ) )
+            qed
+          qed
+        qed
+      next
+        case encrypt
+        step( solve( !Pk( pk(~k) ) ▶₁ #vr ) )
+          case Setup
+          step( solve( !KU( encrypt(~m1, pk(~k), ~r) ) @ #vk ) )
+            case Strong_secrecy
+            MIRRORED
+          next
+            case c_encrypt
+            step( solve( !KU( ~m1 ) @ #vk.1 ) )
+              case Strong_secrecy
+              by step( solve( !KU( ~r ) @ #vk.3 ) )
+            qed
+          qed
+        qed
+      qed
+    next
+      case enc_message_Alice
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case d_0_decrypt
+        step( solve( (#vr.1, 0) ~~> (#i, 1) ) )
+          case Var_fresh_m
+          step( solve( !Pk( pk(~k) ) ▶₀ #vr ) )
+            case Setup
+            step( solve( !KU( pk(~k) ) @ #vk.1 ) )
+              case c_pk
+              by step( solve( !KU( ~k ) @ #vk.2 ) )
+            qed
+          qed
+        qed
+      next
+        case encrypt
+        step( solve( !Pk( pk(~k) ) ▶₀ #vr ) )
+          case Setup
+          step( solve( !KU( encrypt(~m, pk(~k), ~r) ) @ #vk ) )
+            case c_encrypt
+            step( solve( !KU( ~m ) @ #vk.1 ) )
+              case enc_message_Alice
+              by step( solve( !KU( ~r ) @ #vk.3 ) )
+            qed
+          next
+            case enc_message_Alice
+            MIRRORED
+          qed
+        qed
+      qed
+    qed
+  qed
+next
+  case Rule_Send
+  backward-search
+    case LHS
+    step( simplify )
+    MIRRORED
+  next
+    case RHS
+    step( simplify )
+    MIRRORED
+  qed
+next
+  case Rule_Setup
+  backward-search
+    case LHS
+    step( simplify )
+    MIRRORED
+  next
+    case RHS
+    step( simplify )
+    MIRRORED
+  qed
+next
+  case Rule_Strong_secrecy
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !Pk( pk(~k) ) ▶₁ #i ) )
+      case Setup
+      MIRRORED
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !Pk( pk(~k) ) ▶₁ #i ) )
+      case Setup
+      MIRRORED
+    qed
+  qed
+next
+  case Rule_dec_message_Bob
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !Key( ~k ) ▶₁ #i ) )
+      case Setup
+      step( solve( splitEqs(0) ) )
+        case split_case_1
+        MIRRORED
+      next
+        case split_case_2
+        step( solve( !KU( encrypt(z, ~k, x) ) @ #vk ) )
+          case c_encrypt
+          by step( solve( !KU( ~k ) @ #vk.2 ) )
+        qed
+      qed
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !Key( ~k ) ▶₁ #i ) )
+      case Setup
+      step( solve( splitEqs(0) ) )
+        case split_case_1
+        MIRRORED
+      next
+        case split_case_2
+        step( solve( !KU( encrypt(z, ~k, x) ) @ #vk ) )
+          case c_encrypt
+          by step( solve( !KU( ~k ) @ #vk.2 ) )
+        qed
+      qed
+    qed
+  qed
+next
+  case Rule_enc_message_Alice
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !Pk( pk(~k) ) ▶₀ #i ) )
+      case Setup
+      MIRRORED
+    qed
+  next
+    case RHS
+    step( simplify )
+    step( solve( !Pk( pk(~k) ) ▶₀ #i ) )
+      case Setup
+      MIRRORED
+    qed
+  qed
+qed
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code5-J.spthy
+
+  RHS :  message_secret_alice (all-traces): verified (4 steps)
+  LHS :  message_secret_alice (all-traces): verified (4 steps)
+  RHS :  message_secret_bob (all-traces): verified (7 steps)
+  LHS :  message_secret_bob (all-traces): verified (7 steps)
+  RHS :  executable (exists-trace): verified (5 steps)
+  LHS :  executable (exists-trace): verified (5 steps)
+  DiffLemma:  Observational_equivalence : verified (125 steps)
+
+==============================================================================

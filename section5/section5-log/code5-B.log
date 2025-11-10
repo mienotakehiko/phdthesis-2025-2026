@@ -1,0 +1,64 @@
+theory observational_equivalence_model begin
+
+// Function signature and definition of the equational theory E
+
+functions: fst/1, h/1, pair/2, snd/1
+equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+rule (modulo E) Setup:
+   [ Fr( ~nonce ) ] --> [ !Only( ~nonce ) ]
+
+rule (modulo E) Out_Hash:
+   [ !Only( ~nonce ), Fr( ~m ) ] --> [ Out( <~m, diff(~nonce, h(~m))> ) ]
+
+diffLemma Observational_equivalence:
+rule-equivalence
+  case Rule_Equality
+  backward-search
+    case LHS
+    step( simplify )
+    step( solve( !KD( x ) ▶₁ #i ) )
+      case Out_Hash
+      step( solve( (#vl, 0) ~~> (#i, 1) ) )
+        case d_0_snd
+        step( solve( (#vr.1, 0) ~~> (#i, 1) ) )
+          case Var_fresh_nonce
+          step( solve( !Only( ~nonce ) ▶₀ #vr ) )
+            case Setup
+            step( solve( !KU( ~nonce ) @ #vk ) )
+              case Out_Hash
+              by ATTACK // trace found
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code5-B.spthy
+  
+  DiffLemma:  Observational_equivalence : falsified - found trace (9 steps)
+
+==============================================================================
