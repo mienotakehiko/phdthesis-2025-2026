@@ -1,0 +1,108 @@
+(* Code.3-M: Formalization of Chosen-plaintext attack. *)
+free d:channel[private].
+free dd:channel[private].
+free ee:channel[private].
+free cc:channel[private].
+free pubc:channel.
+free ts:bitstring[private].
+free sskey:bitstring[private].
+
+(* concatenation and division of bitstring *)
+fun con(bitstring,bitstring):bitstring.
+fun divhead(bitstring):bitstring.
+fun divrest(bitstring):bitstring.
+equation forall mt:bitstring;
+con(divhead(mt),divrest(mt))=mt.
+
+equation forall lmt:bitstring,rmt:bitstring;
+divhead(con(lmt,rmt))=lmt.
+equation forall lmt:bitstring,rmt:bitstring;
+divrest(con(lmt,rmt))=rmt.
+
+(* XOR *)
+const zeros: bitstring. 
+fun xor(bitstring,bitstring):bitstring.
+equation forall x:bitstring,y:bitstring;
+xor(xor(x,y),y) = x.
+equation forall x:bitstring; xor(x,x) = zeros.
+equation forall x:bitstring; xor(zeros,x) = x.
+equation forall x:bitstring; xor(x,zeros) = x.
+
+(* Block cipher *)
+fun enc(bitstring,bitstring):bitstring.
+fun dec(bitstring,bitstring):bitstring.
+equation forall x: bitstring, 
+s: bitstring; dec(enc(x,s),s) = x.
+
+event SuccCBC.
+
+let CPAO(n:nat) =
+    (
+in(pubc,(iv:bitstring, m:bitstring));
+      out(cc,(iv,n));
+      out(d,(iv,m,n));
+      !(
+        out(dd, n)
+       )
+    ).
+
+let CBCe(prskey:bitstring) =
+     in(d,(iv:bitstring, m:bitstring, n:nat));
+     if(n <> 1)then
+     (
+       let tb = divhead(m) in
+       let nb = divrest(m) in
+       let cipb = enc(xor(tb,iv),prskey)in
+       out(cc, (iv,cipb));
+       out(pubc, (iv,cipb)); (* for adversary *)
+       out(d,(cipb,nb,n-1))
+     )
+     else 
+     (
+       let cipb = enc(xor(m,iv),prskey) in
+       out(pubc, (iv,cipb)); (* for adversary *)
+       out(cc, (iv,cipb))
+     ).
+ 
+ let CBCd(prskey:bitstring) =
+     in(dd, x2:nat);
+     in(cc, (ciphb1:bitstring,ciphb2:bitstring));
+     let plainb =dec(ciphb2,prskey) in
+     if (ciphb2 = enc(plainb,prskey)) then
+     let plaina = xor(plainb,ciphb1) in
+     if (plainb = xor(plaina,ciphb1)) then
+     let x3:nat = x2-1 in
+     if (x3 <> 0) then
+     (
+       out(dd, x3);
+       in(ee,(x4:nat,tiv:bitstring,tailce:bitstring));
+
+       if(x4 = x3 && tiv = ciphb2) then 
+       (
+         let conb = con(plaina,tailce) in  
+         out(ee,(x2,ciphb1,conb));
+         in(pubc,X:bitstring);
+         if(conb = con(X,ts)) then event SuccCBC
+       )
+     )
+     else
+       out(ee, (x2,ciphb1,plaina)).
+ 
+(* queries *)
+query event(SuccCBC).
+
+(*execution part*)
+process
+    (
+      new iv:bitstring;
+    let tb = divhead(ts) in
+    let nb = divrest(ts) in
+    let civ= enc(iv,sskey)in
+      out(pubc,iv);
+      out(cc,(civ,2));
+      out(d,(civ,ts,2));
+      !(
+        out(dd, 2)
+       )
+    ) 
+    |!CBCe(sskey) |!CBCd(sskey) |!CPAO(3) 

@@ -1,0 +1,562 @@
+Linear part: No equation.
+Convergent part:
+xor(xor(x,y),y) = x
+xor(x,x) = zeros
+xor(zeros,x) = x
+xor(x,zeros) = x
+con(divhead(mt),divrest(mt)) = mt
+divhead(con(lmt,rmt)) = lmt
+divrest(con(lmt,rmt)) = rmt
+dec(enc(x,s),s) = x
+o2b(b2o(xb)) = xb
+b2o(o2b(xo)) = xo
+Ocon(Odivhead(mt),Odivrest(mt)) = mt
+Odivhead(Ocon(lmt,rmt)) = lmt
+Odivrest(Ocon(lmt,rmt)) = rmt
+con4octs2(x,y,z,w) = o2b(Ocon(x,Ocon(y,Ocon(z,w))))
+oct1(x) = Odivhead(b2o(x))
+oct2i2(x) = Odivrest(b2o(x))
+oct2i34(x) = Odivhead(Odivrest(b2o(x)))
+oct3i3(x) = Odivrest(Odivrest(b2o(x)))
+oct3i4(x) = Odivhead(Odivrest(Odivrest(b2o(x))))
+oct4(x) = Odivrest(Odivrest(Odivrest(b2o(x))))
+Completing equations...
+Completed equations:
+oct4(o2b(Ocon(lmt,Ocon(lmt_1,Ocon(lmt_2,rmt))))) = rmt
+oct3i4(o2b(Ocon(lmt,Ocon(lmt_1,Ocon(lmt_2,rmt))))) = lmt_2
+con4octs2(Odivhead(b2o(xb)),Odivhead(Odivrest(b2o(xb))),Odivhead(Odivrest(Odivrest(b2o(xb)))),Odivrest(Odivrest(Odivrest(b2o(xb))))) = xb
+oct4(o2b(Ocon(lmt,Ocon(lmt_1,rmt)))) = Odivrest(rmt)
+oct3i4(o2b(Ocon(lmt,Ocon(lmt_1,rmt)))) = Odivhead(rmt)
+oct3i3(o2b(Ocon(lmt,Ocon(lmt_1,rmt)))) = rmt
+oct2i34(o2b(Ocon(lmt,Ocon(lmt_1,rmt)))) = lmt_1
+con4octs2(Odivhead(mt),Odivhead(Odivrest(mt)),Odivhead(Odivrest(Odivrest(mt))),Odivrest(Odivrest(Odivrest(mt)))) = o2b(mt)
+oct4(o2b(Ocon(lmt,rmt))) = Odivrest(Odivrest(rmt))
+oct3i4(o2b(Ocon(lmt,rmt))) = Odivhead(Odivrest(rmt))
+oct3i3(o2b(Ocon(lmt,rmt))) = Odivrest(rmt)
+oct2i34(o2b(Ocon(lmt,rmt))) = Odivhead(rmt)
+oct2i2(o2b(Ocon(lmt,rmt))) = rmt
+oct1(o2b(Ocon(lmt,rmt))) = lmt
+con4octs2(x,Odivhead(mt),Odivhead(Odivrest(mt)),Odivrest(Odivrest(mt))) = o2b(Ocon(x,mt))
+oct4(o2b(xo)) = Odivrest(Odivrest(Odivrest(xo)))
+oct3i4(o2b(xo)) = Odivhead(Odivrest(Odivrest(xo)))
+oct3i3(o2b(xo)) = Odivrest(Odivrest(xo))
+oct2i34(o2b(xo)) = Odivhead(Odivrest(xo))
+oct2i2(o2b(xo)) = Odivrest(xo)
+oct1(o2b(xo)) = Odivhead(xo)
+con4octs2(x,y,Odivhead(mt),Odivrest(mt)) = o2b(Ocon(x,Ocon(y,mt)))
+oct4(x) = Odivrest(Odivrest(Odivrest(b2o(x))))
+oct3i4(x) = Odivhead(Odivrest(Odivrest(b2o(x))))
+oct3i3(x) = Odivrest(Odivrest(b2o(x)))
+oct2i34(x) = Odivhead(Odivrest(b2o(x)))
+oct2i2(x) = Odivrest(b2o(x))
+oct1(x) = Odivhead(b2o(x))
+con4octs2(x,y,z,w) = o2b(Ocon(x,Ocon(y,Ocon(z,w))))
+Odivrest(Ocon(lmt,rmt)) = rmt
+Odivhead(Ocon(lmt,rmt)) = lmt
+Ocon(Odivhead(mt),Odivrest(mt)) = mt
+b2o(o2b(xo)) = xo
+o2b(b2o(xb)) = xb
+dec(enc(x,s),s) = x
+divrest(con(lmt,rmt)) = rmt
+divhead(con(lmt,rmt)) = lmt
+con(divhead(mt),divrest(mt)) = mt
+xor(x,zeros) = x
+xor(zeros,x) = x
+xor(x,x) = zeros
+xor(xor(x,y),y) = x
+Process 0 (that is, the initial process):
+(
+    {1}new iv: bitstring;
+    {2}out(cc, (iv,4));
+    {3}out(d, (iv,ts,4));
+    {4}!
+    {5}out(dd, 4)
+) | (
+    {6}!
+    {7}let prskey: bitstring = sskey in
+    {8}in(d, (iv_1: bitstring,m: bitstring,n: nat));
+    {9}if (n ≠ 1) then
+    (
+        {10}let tb: bitstring = divhead(m) in
+        {11}let nb: bitstring = divrest(m) in
+        {12}let cipb: bitstring = enc(xor(tb,iv_1),prskey) in
+        {13}out(cc, (iv_1,cipb));
+        {14}out(pubc, (iv_1,cipb));
+        {15}out(d, (cipb,nb,n - 1))
+    )
+    else
+        {16}let p: bitstring = con4octs2(b2o(m),CPAD3,CPAD3,CPAD3) in
+        {17}let cipb_1: bitstring = enc(xor(p,iv_1),prskey) in
+        {18}out(pubc, (iv_1,cipb_1));
+        {19}out(cc, (iv_1,cipb_1))
+) | (
+    {20}!
+    {21}let prskey_1: bitstring = sskey in
+    {22}in(dd, x2: nat);
+    {23}in(cc, (ciphb1: bitstring,ciphb2: bitstring));
+    {24}let plainb: bitstring = dec(ciphb2,prskey_1) in
+    {25}if (ciphb2 = enc(plainb,prskey_1)) then
+    {26}let plaina: bitstring = xor(plainb,ciphb1) in
+    {27}if (plainb = xor(plaina,ciphb1)) then
+    {28}let x3: nat = x2 - 1 in
+    {29}if (x3 ≠ 0) then
+    (
+        {30}out(dd, x3);
+        {31}in(ee, (x4: nat,tailce: bitstring));
+        {32}if (x4 = x3) then
+        {33}let conb: bitstring = con(plaina,tailce) in
+        {34}out(ee, (x2,conb));
+        {35}if (conb = ts) then
+        {36}event SuccCBC
+    )
+    else
+        {37}if (oct4(plaina) = CPAD3) then
+        {38}if (oct3i4(plaina) = CPAD3) then
+        {39}if (oct2i34(plaina) = CPAD3) then
+        {40}let planac: oct = oct1(plaina) in
+        {41}out(ee, (x2,o2b(planac)))
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}new iv: bitstring;
+    {2}out(cc, (iv,4));
+    {3}out(d, (iv,ts,4));
+    {4}!
+    {5}out(dd, 4)
+) | (
+    {6}!
+    {8}in(d, (iv_1: bitstring,m: bitstring,n: nat));
+    {7}let prskey: bitstring = sskey in
+    {9}if (n ≠ 1) then
+    (
+        {10}let tb: bitstring = divhead(m) in
+        {12}let cipb: bitstring = enc(xor(tb,iv_1),prskey) in
+        {13}out(cc, (iv_1,cipb));
+        {14}out(pubc, (iv_1,cipb));
+        {11}let nb: bitstring = divrest(m) in
+        {15}out(d, (cipb,nb,n - 1))
+    )
+    else
+        {16}let p: bitstring = con4octs2(b2o(m),CPAD3,CPAD3,CPAD3) in
+        {17}let cipb_1: bitstring = enc(xor(p,iv_1),prskey) in
+        {18}out(pubc, (iv_1,cipb_1));
+        {19}out(cc, (iv_1,cipb_1))
+) | (
+    {20}!
+    {22}in(dd, x2: nat);
+    {23}in(cc, (ciphb1: bitstring,ciphb2: bitstring));
+    {21}let prskey_1: bitstring = sskey in
+    {24}let plainb: bitstring = dec(ciphb2,prskey_1) in
+    {25}if (ciphb2 = enc(plainb,prskey_1)) then
+    {26}let plaina: bitstring = xor(plainb,ciphb1) in
+    {27}if (plainb = xor(plaina,ciphb1)) then
+    {28}let x3: nat = x2 - 1 in
+    {29}if (x3 ≠ 0) then
+    (
+        {30}out(dd, x3);
+        {31}in(ee, (x4: nat,tailce: bitstring));
+        {32}if (x4 = x3) then
+        {33}let conb: bitstring = con(plaina,tailce) in
+        {34}out(ee, (x2,conb));
+        {35}if (conb = ts) then
+        {36}event SuccCBC
+    )
+    else
+        {37}if (oct4(plaina) = CPAD3) then
+        {38}if (oct3i4(plaina) = CPAD3) then
+        {39}if (oct2i34(plaina) = CPAD3) then
+        {40}let planac: oct = oct1(plaina) in
+        {41}out(ee, (x2,o2b(planac)))
+)
+
+-- Query not attacker(ts[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 176 rules (45 with conclusion selected). Queue: 97 rules.
+400 rules inserted. Base: 350 rules (56 with conclusion selected). Queue: 63 rules.
+600 rules inserted. Base: 522 rules (67 with conclusion selected). Queue: 172 rules.
+800 rules inserted. Base: 716 rules (123 with conclusion selected). Queue: 1445 rules.
+1000 rules inserted. Base: 916 rules (199 with conclusion selected). Queue: 3145 rules.
+1200 rules inserted. Base: 1116 rules (277 with conclusion selected). Queue: 4895 rules.
+1400 rules inserted. Base: 1316 rules (355 with conclusion selected). Queue: 6645 rules.
+1600 rules inserted. Base: 1516 rules (430 with conclusion selected). Queue: 8320 rules.
+1800 rules inserted. Base: 1716 rules (507 with conclusion selected). Queue: 10045 rules.
+2000 rules inserted. Base: 1916 rules (586 with conclusion selected). Queue: 11821 rules.
+2200 rules inserted. Base: 2058 rules (660 with conclusion selected). Queue: 13025 rules.
+2400 rules inserted. Base: 2258 rules (740 with conclusion selected). Queue: 12905 rules.
+2600 rules inserted. Base: 2458 rules (820 with conclusion selected). Queue: 12785 rules.
+2800 rules inserted. Base: 2658 rules (900 with conclusion selected). Queue: 12665 rules.
+3000 rules inserted. Base: 2858 rules (980 with conclusion selected). Queue: 12545 rules.
+3200 rules inserted. Base: 3058 rules (1060 with conclusion selected). Queue: 12425 rules.
+3400 rules inserted. Base: 3258 rules (1140 with conclusion selected). Queue: 12305 rules.
+3600 rules inserted. Base: 3458 rules (1220 with conclusion selected). Queue: 12185 rules.
+3800 rules inserted. Base: 3658 rules (1300 with conclusion selected). Queue: 12065 rules.
+4000 rules inserted. Base: 3858 rules (1380 with conclusion selected). Queue: 11945 rules.
+4200 rules inserted. Base: 4058 rules (1460 with conclusion selected). Queue: 11825 rules.
+4400 rules inserted. Base: 4258 rules (1540 with conclusion selected). Queue: 11705 rules.
+4600 rules inserted. Base: 4458 rules (1620 with conclusion selected). Queue: 11585 rules.
+4800 rules inserted. Base: 4658 rules (1700 with conclusion selected). Queue: 11465 rules.
+5000 rules inserted. Base: 4858 rules (1780 with conclusion selected). Queue: 11345 rules.
+5200 rules inserted. Base: 5058 rules (1860 with conclusion selected). Queue: 11225 rules.
+5400 rules inserted. Base: 5258 rules (1940 with conclusion selected). Queue: 11105 rules.
+5600 rules inserted. Base: 5458 rules (2020 with conclusion selected). Queue: 10985 rules.
+5800 rules inserted. Base: 5658 rules (2100 with conclusion selected). Queue: 10865 rules.
+6000 rules inserted. Base: 5858 rules (2180 with conclusion selected). Queue: 10745 rules.
+6200 rules inserted. Base: 6058 rules (2260 with conclusion selected). Queue: 10625 rules.
+6400 rules inserted. Base: 6258 rules (2340 with conclusion selected). Queue: 10505 rules.
+6600 rules inserted. Base: 6458 rules (2420 with conclusion selected). Queue: 10385 rules.
+6800 rules inserted. Base: 6658 rules (2500 with conclusion selected). Queue: 10265 rules.
+7000 rules inserted. Base: 6858 rules (2580 with conclusion selected). Queue: 10145 rules.
+7200 rules inserted. Base: 7058 rules (2660 with conclusion selected). Queue: 10025 rules.
+7400 rules inserted. Base: 7258 rules (2740 with conclusion selected). Queue: 9905 rules.
+7600 rules inserted. Base: 7458 rules (2820 with conclusion selected). Queue: 9785 rules.
+7800 rules inserted. Base: 7658 rules (2900 with conclusion selected). Queue: 9665 rules.
+8000 rules inserted. Base: 7858 rules (2980 with conclusion selected). Queue: 9545 rules.
+8200 rules inserted. Base: 8058 rules (3060 with conclusion selected). Queue: 9425 rules.
+8400 rules inserted. Base: 8258 rules (3140 with conclusion selected). Queue: 9305 rules.
+8600 rules inserted. Base: 8458 rules (3220 with conclusion selected). Queue: 9185 rules.
+8800 rules inserted. Base: 8658 rules (3300 with conclusion selected). Queue: 9065 rules.
+9000 rules inserted. Base: 8858 rules (3380 with conclusion selected). Queue: 8945 rules.
+9200 rules inserted. Base: 9058 rules (3460 with conclusion selected). Queue: 8825 rules.
+9400 rules inserted. Base: 9258 rules (3540 with conclusion selected). Queue: 8705 rules.
+9600 rules inserted. Base: 9458 rules (3620 with conclusion selected). Queue: 8585 rules.
+9800 rules inserted. Base: 9658 rules (3700 with conclusion selected). Queue: 8465 rules.
+10000 rules inserted. Base: 9858 rules (3780 with conclusion selected). Queue: 8345 rules.
+10200 rules inserted. Base: 10058 rules (3860 with conclusion selected). Queue: 8225 rules.
+10400 rules inserted. Base: 10258 rules (3940 with conclusion selected). Queue: 8105 rules.
+10600 rules inserted. Base: 10458 rules (4020 with conclusion selected). Queue: 7985 rules.
+10800 rules inserted. Base: 10658 rules (4100 with conclusion selected). Queue: 7865 rules.
+11000 rules inserted. Base: 10858 rules (4180 with conclusion selected). Queue: 7745 rules.
+11200 rules inserted. Base: 11058 rules (4260 with conclusion selected). Queue: 7625 rules.
+11400 rules inserted. Base: 11258 rules (4340 with conclusion selected). Queue: 7505 rules.
+11600 rules inserted. Base: 11458 rules (4420 with conclusion selected). Queue: 7385 rules.
+11800 rules inserted. Base: 11658 rules (4500 with conclusion selected). Queue: 7265 rules.
+12000 rules inserted. Base: 11858 rules (4580 with conclusion selected). Queue: 7145 rules.
+12200 rules inserted. Base: 12056 rules (4660 with conclusion selected). Queue: 7276 rules.
+12400 rules inserted. Base: 12256 rules (4740 with conclusion selected). Queue: 7156 rules.
+12600 rules inserted. Base: 12456 rules (4820 with conclusion selected). Queue: 7036 rules.
+12800 rules inserted. Base: 12656 rules (4900 with conclusion selected). Queue: 6916 rules.
+13000 rules inserted. Base: 12856 rules (4980 with conclusion selected). Queue: 6796 rules.
+13200 rules inserted. Base: 13056 rules (5060 with conclusion selected). Queue: 6676 rules.
+13400 rules inserted. Base: 13256 rules (5140 with conclusion selected). Queue: 6556 rules.
+13600 rules inserted. Base: 13456 rules (5220 with conclusion selected). Queue: 6436 rules.
+13800 rules inserted. Base: 13656 rules (5300 with conclusion selected). Queue: 6316 rules.
+14000 rules inserted. Base: 13856 rules (5380 with conclusion selected). Queue: 6196 rules.
+14200 rules inserted. Base: 14056 rules (5460 with conclusion selected). Queue: 6076 rules.
+14400 rules inserted. Base: 14256 rules (5540 with conclusion selected). Queue: 5956 rules.
+14600 rules inserted. Base: 14456 rules (5620 with conclusion selected). Queue: 5836 rules.
+14800 rules inserted. Base: 14656 rules (5628 with conclusion selected). Queue: 5644 rules.
+15000 rules inserted. Base: 14856 rules (5628 with conclusion selected). Queue: 5444 rules.
+15200 rules inserted. Base: 15056 rules (5628 with conclusion selected). Queue: 5244 rules.
+15400 rules inserted. Base: 15256 rules (5628 with conclusion selected). Queue: 5044 rules.
+15600 rules inserted. Base: 15456 rules (5628 with conclusion selected). Queue: 4844 rules.
+15800 rules inserted. Base: 15656 rules (5628 with conclusion selected). Queue: 4644 rules.
+16000 rules inserted. Base: 15856 rules (5628 with conclusion selected). Queue: 4444 rules.
+16200 rules inserted. Base: 16056 rules (5628 with conclusion selected). Queue: 4244 rules.
+16400 rules inserted. Base: 16256 rules (5628 with conclusion selected). Queue: 4044 rules.
+16600 rules inserted. Base: 16456 rules (5628 with conclusion selected). Queue: 3844 rules.
+16800 rules inserted. Base: 16656 rules (5628 with conclusion selected). Queue: 3644 rules.
+17000 rules inserted. Base: 16856 rules (5628 with conclusion selected). Queue: 3444 rules.
+17200 rules inserted. Base: 17056 rules (5628 with conclusion selected). Queue: 3244 rules.
+17400 rules inserted. Base: 17256 rules (5628 with conclusion selected). Queue: 3044 rules.
+17600 rules inserted. Base: 17456 rules (5628 with conclusion selected). Queue: 2844 rules.
+17800 rules inserted. Base: 17656 rules (5628 with conclusion selected). Queue: 2644 rules.
+18000 rules inserted. Base: 17856 rules (5628 with conclusion selected). Queue: 2444 rules.
+18200 rules inserted. Base: 18056 rules (5628 with conclusion selected). Queue: 2244 rules.
+18400 rules inserted. Base: 18256 rules (5628 with conclusion selected). Queue: 2044 rules.
+18600 rules inserted. Base: 18456 rules (5628 with conclusion selected). Queue: 1844 rules.
+18800 rules inserted. Base: 18656 rules (5628 with conclusion selected). Queue: 1644 rules.
+19000 rules inserted. Base: 18856 rules (5628 with conclusion selected). Queue: 1444 rules.
+19200 rules inserted. Base: 19056 rules (5636 with conclusion selected). Queue: 1252 rules.
+19400 rules inserted. Base: 19256 rules (5712 with conclusion selected). Queue: 1128 rules.
+19600 rules inserted. Base: 19456 rules (5729 with conclusion selected). Queue: 971 rules.
+19800 rules inserted. Base: 19656 rules (5729 with conclusion selected). Queue: 771 rules.
+20000 rules inserted. Base: 19856 rules (5729 with conclusion selected). Queue: 571 rules.
+20200 rules inserted. Base: 20056 rules (5729 with conclusion selected). Queue: 371 rules.
+20400 rules inserted. Base: 20256 rules (5729 with conclusion selected). Queue: 171 rules.
+Starting query not attacker(ts[])
+RESULT not attacker(ts[]) is true.
+-- Query not event(SuccCBC) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 179 rules (45 with conclusion selected). Queue: 101 rules.
+400 rules inserted. Base: 347 rules (56 with conclusion selected). Queue: 67 rules.
+600 rules inserted. Base: 519 rules (67 with conclusion selected). Queue: 169 rules.
+800 rules inserted. Base: 712 rules (119 with conclusion selected). Queue: 1352 rules.
+1000 rules inserted. Base: 912 rules (197 with conclusion selected). Queue: 3102 rules.
+1200 rules inserted. Base: 1112 rules (275 with conclusion selected). Queue: 4852 rules.
+1400 rules inserted. Base: 1312 rules (351 with conclusion selected). Queue: 6552 rules.
+1600 rules inserted. Base: 1512 rules (427 with conclusion selected). Queue: 8252 rules.
+1800 rules inserted. Base: 1712 rules (506 with conclusion selected). Queue: 10027 rules.
+2000 rules inserted. Base: 1912 rules (582 with conclusion selected). Queue: 11728 rules.
+2200 rules inserted. Base: 2054 rules (657 with conclusion selected). Queue: 13029 rules.
+2400 rules inserted. Base: 2254 rules (737 with conclusion selected). Queue: 12909 rules.
+2600 rules inserted. Base: 2454 rules (817 with conclusion selected). Queue: 12789 rules.
+2800 rules inserted. Base: 2654 rules (897 with conclusion selected). Queue: 12669 rules.
+3000 rules inserted. Base: 2854 rules (977 with conclusion selected). Queue: 12549 rules.
+3200 rules inserted. Base: 3054 rules (1057 with conclusion selected). Queue: 12429 rules.
+3400 rules inserted. Base: 3254 rules (1137 with conclusion selected). Queue: 12309 rules.
+3600 rules inserted. Base: 3454 rules (1217 with conclusion selected). Queue: 12189 rules.
+3800 rules inserted. Base: 3654 rules (1297 with conclusion selected). Queue: 12069 rules.
+4000 rules inserted. Base: 3854 rules (1377 with conclusion selected). Queue: 11949 rules.
+4200 rules inserted. Base: 4054 rules (1457 with conclusion selected). Queue: 11829 rules.
+4400 rules inserted. Base: 4254 rules (1537 with conclusion selected). Queue: 11709 rules.
+4600 rules inserted. Base: 4454 rules (1617 with conclusion selected). Queue: 11589 rules.
+4800 rules inserted. Base: 4654 rules (1697 with conclusion selected). Queue: 11469 rules.
+5000 rules inserted. Base: 4854 rules (1777 with conclusion selected). Queue: 11349 rules.
+5200 rules inserted. Base: 5054 rules (1857 with conclusion selected). Queue: 11229 rules.
+5400 rules inserted. Base: 5254 rules (1937 with conclusion selected). Queue: 11109 rules.
+5600 rules inserted. Base: 5454 rules (2017 with conclusion selected). Queue: 10989 rules.
+5800 rules inserted. Base: 5654 rules (2097 with conclusion selected). Queue: 10869 rules.
+6000 rules inserted. Base: 5854 rules (2177 with conclusion selected). Queue: 10749 rules.
+6200 rules inserted. Base: 6054 rules (2257 with conclusion selected). Queue: 10629 rules.
+6400 rules inserted. Base: 6254 rules (2337 with conclusion selected). Queue: 10509 rules.
+6600 rules inserted. Base: 6454 rules (2417 with conclusion selected). Queue: 10389 rules.
+6800 rules inserted. Base: 6654 rules (2497 with conclusion selected). Queue: 10269 rules.
+7000 rules inserted. Base: 6854 rules (2577 with conclusion selected). Queue: 10149 rules.
+7200 rules inserted. Base: 7054 rules (2657 with conclusion selected). Queue: 10029 rules.
+7400 rules inserted. Base: 7254 rules (2737 with conclusion selected). Queue: 9909 rules.
+7600 rules inserted. Base: 7454 rules (2817 with conclusion selected). Queue: 9789 rules.
+7800 rules inserted. Base: 7654 rules (2897 with conclusion selected). Queue: 9669 rules.
+8000 rules inserted. Base: 7854 rules (2977 with conclusion selected). Queue: 9549 rules.
+8200 rules inserted. Base: 8054 rules (3057 with conclusion selected). Queue: 9429 rules.
+8400 rules inserted. Base: 8254 rules (3137 with conclusion selected). Queue: 9309 rules.
+8600 rules inserted. Base: 8454 rules (3217 with conclusion selected). Queue: 9189 rules.
+8800 rules inserted. Base: 8654 rules (3297 with conclusion selected). Queue: 9069 rules.
+9000 rules inserted. Base: 8854 rules (3377 with conclusion selected). Queue: 8949 rules.
+9200 rules inserted. Base: 9054 rules (3457 with conclusion selected). Queue: 8829 rules.
+9400 rules inserted. Base: 9254 rules (3537 with conclusion selected). Queue: 8709 rules.
+9600 rules inserted. Base: 9454 rules (3617 with conclusion selected). Queue: 8589 rules.
+9800 rules inserted. Base: 9654 rules (3697 with conclusion selected). Queue: 8469 rules.
+10000 rules inserted. Base: 9854 rules (3777 with conclusion selected). Queue: 8349 rules.
+10200 rules inserted. Base: 10054 rules (3857 with conclusion selected). Queue: 8229 rules.
+10400 rules inserted. Base: 10254 rules (3937 with conclusion selected). Queue: 8109 rules.
+10600 rules inserted. Base: 10454 rules (4017 with conclusion selected). Queue: 7989 rules.
+10800 rules inserted. Base: 10654 rules (4097 with conclusion selected). Queue: 7869 rules.
+11000 rules inserted. Base: 10854 rules (4177 with conclusion selected). Queue: 7749 rules.
+11200 rules inserted. Base: 11054 rules (4257 with conclusion selected). Queue: 7629 rules.
+11400 rules inserted. Base: 11254 rules (4337 with conclusion selected). Queue: 7509 rules.
+11600 rules inserted. Base: 11454 rules (4417 with conclusion selected). Queue: 7389 rules.
+11800 rules inserted. Base: 11654 rules (4497 with conclusion selected). Queue: 7269 rules.
+12000 rules inserted. Base: 11854 rules (4577 with conclusion selected). Queue: 7149 rules.
+12200 rules inserted. Base: 12052 rules (4656 with conclusion selected). Queue: 7279 rules.
+12400 rules inserted. Base: 12252 rules (4736 with conclusion selected). Queue: 7159 rules.
+12600 rules inserted. Base: 12452 rules (4816 with conclusion selected). Queue: 7039 rules.
+12800 rules inserted. Base: 12652 rules (4896 with conclusion selected). Queue: 6919 rules.
+13000 rules inserted. Base: 12852 rules (4976 with conclusion selected). Queue: 6799 rules.
+13200 rules inserted. Base: 13052 rules (5056 with conclusion selected). Queue: 6679 rules.
+13400 rules inserted. Base: 13252 rules (5136 with conclusion selected). Queue: 6559 rules.
+13600 rules inserted. Base: 13452 rules (5216 with conclusion selected). Queue: 6439 rules.
+13800 rules inserted. Base: 13652 rules (5296 with conclusion selected). Queue: 6319 rules.
+14000 rules inserted. Base: 13852 rules (5376 with conclusion selected). Queue: 6199 rules.
+14200 rules inserted. Base: 14052 rules (5456 with conclusion selected). Queue: 6079 rules.
+14400 rules inserted. Base: 14252 rules (5536 with conclusion selected). Queue: 5959 rules.
+14600 rules inserted. Base: 14452 rules (5616 with conclusion selected). Queue: 5839 rules.
+14800 rules inserted. Base: 14652 rules (5628 with conclusion selected). Queue: 5651 rules.
+15000 rules inserted. Base: 14852 rules (5628 with conclusion selected). Queue: 5451 rules.
+15200 rules inserted. Base: 15052 rules (5628 with conclusion selected). Queue: 5251 rules.
+15400 rules inserted. Base: 15252 rules (5628 with conclusion selected). Queue: 5051 rules.
+15600 rules inserted. Base: 15452 rules (5628 with conclusion selected). Queue: 4851 rules.
+15800 rules inserted. Base: 15652 rules (5628 with conclusion selected). Queue: 4651 rules.
+16000 rules inserted. Base: 15852 rules (5628 with conclusion selected). Queue: 4451 rules.
+16200 rules inserted. Base: 16052 rules (5628 with conclusion selected). Queue: 4251 rules.
+16400 rules inserted. Base: 16252 rules (5628 with conclusion selected). Queue: 4051 rules.
+16600 rules inserted. Base: 16452 rules (5628 with conclusion selected). Queue: 3851 rules.
+16800 rules inserted. Base: 16652 rules (5628 with conclusion selected). Queue: 3651 rules.
+17000 rules inserted. Base: 16852 rules (5628 with conclusion selected). Queue: 3451 rules.
+17200 rules inserted. Base: 17052 rules (5628 with conclusion selected). Queue: 3251 rules.
+17400 rules inserted. Base: 17252 rules (5628 with conclusion selected). Queue: 3051 rules.
+17600 rules inserted. Base: 17452 rules (5628 with conclusion selected). Queue: 2851 rules.
+17800 rules inserted. Base: 17652 rules (5628 with conclusion selected). Queue: 2651 rules.
+18000 rules inserted. Base: 17852 rules (5628 with conclusion selected). Queue: 2451 rules.
+18200 rules inserted. Base: 18052 rules (5628 with conclusion selected). Queue: 2251 rules.
+18400 rules inserted. Base: 18252 rules (5628 with conclusion selected). Queue: 2051 rules.
+18600 rules inserted. Base: 18452 rules (5628 with conclusion selected). Queue: 1851 rules.
+18800 rules inserted. Base: 18652 rules (5628 with conclusion selected). Queue: 1651 rules.
+19000 rules inserted. Base: 18852 rules (5628 with conclusion selected). Queue: 1451 rules.
+19200 rules inserted. Base: 19052 rules (5633 with conclusion selected). Queue: 1256 rules.
+19400 rules inserted. Base: 19252 rules (5708 with conclusion selected). Queue: 1131 rules.
+19600 rules inserted. Base: 19452 rules (5729 with conclusion selected). Queue: 979 rules.
+19800 rules inserted. Base: 19652 rules (5729 with conclusion selected). Queue: 779 rules.
+20000 rules inserted. Base: 19852 rules (5729 with conclusion selected). Queue: 579 rules.
+20200 rules inserted. Base: 20052 rules (5729 with conclusion selected). Queue: 379 rules.
+20400 rules inserted. Base: 20252 rules (5729 with conclusion selected). Queue: 179 rules.
+Starting query not event(SuccCBC)
+goal reachable: event(SuccCBC)
+
+Derivation:
+
+1. The message 4 may be sent on channel dd[] at output {5}.
+mess(dd[],4).
+
+2. The message (iv[],ts[],4) may be sent on channel d[] at output {3}.
+mess(d[],(iv[],ts[],4)).
+
+3. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 4 ≠ 1.
+So the message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) may be sent on channel cc[] at output {13}.
+mess(cc[],(iv[],enc(xor(divhead(ts[]),iv[]),sskey[]))).
+
+4. The message 4 may be sent on channel dd[] at output {5}.
+mess(dd[],4).
+
+5. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 4 ≠ 1.
+So the message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) may be sent on channel cc[] at output {13}.
+mess(cc[],(iv[],enc(xor(divhead(ts[]),iv[]),sskey[]))).
+
+6. The message 4 that may be sent on channel dd[] by 4 may be received at input {22}.
+The message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) that may be sent on channel cc[] by 5 may be received at input {23}.
+We have 3 ≠ 0.
+So the message 3 may be sent on channel dd[] at output {30}.
+mess(dd[],3).
+
+7. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 3 ≠ 0.
+So the message (enc(xor(divhead(ts[]),iv[]),sskey[]),divrest(ts[]),3) may be sent on channel d[] at output {15}.
+mess(d[],(enc(xor(divhead(ts[]),iv[]),sskey[]),divrest(ts[]),3)).
+
+8. The message (enc(xor(divhead(ts[]),iv[]),sskey[]),divrest(ts[]),3) that may be sent on channel d[] by 7 may be received at input {8}.
+We have 3 ≠ 1.
+So the message (enc(xor(divhead(ts[]),iv[]),sskey[]),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])) may be sent on channel cc[] at output {13}.
+mess(cc[],(enc(xor(divhead(ts[]),iv[]),sskey[]),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]))).
+
+9. The message 4 may be sent on channel dd[] at output {5}.
+mess(dd[],4).
+
+10. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 4 ≠ 1.
+So the message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) may be sent on channel cc[] at output {13}.
+mess(cc[],(iv[],enc(xor(divhead(ts[]),iv[]),sskey[]))).
+
+11. The message 4 that may be sent on channel dd[] by 9 may be received at input {22}.
+The message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) that may be sent on channel cc[] by 10 may be received at input {23}.
+We have 3 ≠ 0.
+So the message 3 may be sent on channel dd[] at output {30}.
+mess(dd[],3).
+
+12. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 4 ≠ 1.
+So the message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) may be sent on channel cc[] at output {13}.
+mess(cc[],(iv[],enc(xor(divhead(ts[]),iv[]),sskey[]))).
+
+13. The message 3 that may be sent on channel dd[] by 11 may be received at input {22}.
+The message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) that may be sent on channel cc[] by 12 may be received at input {23}.
+We have 2 ≠ 0.
+So the message 2 may be sent on channel dd[] at output {30}.
+mess(dd[],2).
+
+14. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 3 ≠ 0.
+So the message (enc(xor(divhead(ts[]),iv[]),sskey[]),divrest(ts[]),3) may be sent on channel d[] at output {15}.
+mess(d[],(enc(xor(divhead(ts[]),iv[]),sskey[]),divrest(ts[]),3)).
+
+15. The message (enc(xor(divhead(ts[]),iv[]),sskey[]),divrest(ts[]),3) that may be sent on channel d[] by 14 may be received at input {8}.
+We have 2 ≠ 0.
+So the message (enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]),divrest(divrest(ts[])),2) may be sent on channel d[] at output {15}.
+mess(d[],(enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]),divrest(divrest(ts[])),2)).
+
+16. The message (enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]),divrest(divrest(ts[])),2) that may be sent on channel d[] by 15 may be received at input {8}.
+We have 2 ≠ 1.
+So the message (enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]),enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[])) may be sent on channel cc[] at output {13}.
+mess(cc[],(enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]),enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[]))).
+
+17. The message 4 may be sent on channel dd[] at output {5}.
+mess(dd[],4).
+
+18. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 4 ≠ 1.
+So the message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) may be sent on channel cc[] at output {13}.
+mess(cc[],(iv[],enc(xor(divhead(ts[]),iv[]),sskey[]))).
+
+19. The message 4 that may be sent on channel dd[] by 17 may be received at input {22}.
+The message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) that may be sent on channel cc[] by 18 may be received at input {23}.
+We have 3 ≠ 0.
+So the message 3 may be sent on channel dd[] at output {30}.
+mess(dd[],3).
+
+20. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 4 ≠ 1.
+So the message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) may be sent on channel cc[] at output {13}.
+mess(cc[],(iv[],enc(xor(divhead(ts[]),iv[]),sskey[]))).
+
+21. The message 3 that may be sent on channel dd[] by 19 may be received at input {22}.
+The message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) that may be sent on channel cc[] by 20 may be received at input {23}.
+We have 2 ≠ 0.
+So the message 2 may be sent on channel dd[] at output {30}.
+mess(dd[],2).
+
+22. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 4 ≠ 1.
+So the message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) may be sent on channel cc[] at output {13}.
+mess(cc[],(iv[],enc(xor(divhead(ts[]),iv[]),sskey[]))).
+
+23. The message 2 that may be sent on channel dd[] by 21 may be received at input {22}.
+The message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) that may be sent on channel cc[] by 22 may be received at input {23}.
+We have 1 ≠ 0.
+So the message 1 may be sent on channel dd[] at output {30}.
+mess(dd[],1).
+
+24. The message (iv[],ts[],4) that may be sent on channel d[] by 2 may be received at input {8}.
+We have 3 ≠ 0.
+So the message (enc(xor(divhead(ts[]),iv[]),sskey[]),divrest(ts[]),3) may be sent on channel d[] at output {15}.
+mess(d[],(enc(xor(divhead(ts[]),iv[]),sskey[]),divrest(ts[]),3)).
+
+25. The message (enc(xor(divhead(ts[]),iv[]),sskey[]),divrest(ts[]),3) that may be sent on channel d[] by 24 may be received at input {8}.
+We have 2 ≠ 0.
+So the message (enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]),divrest(divrest(ts[])),2) may be sent on channel d[] at output {15}.
+mess(d[],(enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]),divrest(divrest(ts[])),2)).
+
+26. The message (enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]),divrest(divrest(ts[])),2) that may be sent on channel d[] by 25 may be received at input {8}.
+We have 1 ≠ 0.
+So the message (enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[]),divrest(divrest(divrest(ts[]))),1) may be sent on channel d[] at output {15}.
+mess(d[],(enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[]),divrest(divrest(divrest(ts[]))),1)).
+
+27. The message (enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[]),divrest(divrest(divrest(ts[]))),1) that may be sent on channel d[] by 26 may be received at input {8}.
+So the message (enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[]),enc(xor(o2b(Ocon(b2o(divrest(divrest(divrest(ts[])))),Ocon(CPAD3,Ocon(CPAD3,CPAD3)))),enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[])),sskey[])) may be sent on channel cc[] at output {19}.
+mess(cc[],(enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[]),enc(xor(o2b(Ocon(b2o(divrest(divrest(divrest(ts[])))),Ocon(CPAD3,Ocon(CPAD3,CPAD3)))),enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[])),sskey[]))).
+
+28. The message 1 that may be sent on channel dd[] by 23 may be received at input {22}.
+The message (enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[]),enc(xor(o2b(Ocon(b2o(divrest(divrest(divrest(ts[])))),Ocon(CPAD3,Ocon(CPAD3,CPAD3)))),enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[])),sskey[])) that may be sent on channel cc[] by 27 may be received at input {23}.
+So the message (1,divrest(divrest(divrest(ts[])))) may be sent on channel ee[] at output {41}.
+mess(ee[],(1,divrest(divrest(divrest(ts[]))))).
+
+29. The message 2 that may be sent on channel dd[] by 13 may be received at input {22}.
+The message (enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[]),enc(xor(divhead(divrest(divrest(ts[]))),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])),sskey[])) that may be sent on channel cc[] by 16 may be received at input {23}.
+The message (1,divrest(divrest(divrest(ts[])))) that may be sent on channel ee[] by 28 may be received at input {31}.
+We have 1 ≠ 0.
+So the message (2,divrest(divrest(ts[]))) may be sent on channel ee[] at output {34}.
+mess(ee[],(2,divrest(divrest(ts[])))).
+
+30. The message 3 that may be sent on channel dd[] by 6 may be received at input {22}.
+The message (enc(xor(divhead(ts[]),iv[]),sskey[]),enc(xor(divhead(divrest(ts[])),enc(xor(divhead(ts[]),iv[]),sskey[])),sskey[])) that may be sent on channel cc[] by 8 may be received at input {23}.
+The message (2,divrest(divrest(ts[]))) that may be sent on channel ee[] by 29 may be received at input {31}.
+We have 2 ≠ 0.
+So the message (3,divrest(ts[])) may be sent on channel ee[] at output {34}.
+mess(ee[],(3,divrest(ts[]))).
+
+31. The message 4 that may be sent on channel dd[] by 1 may be received at input {22}.
+The message (iv[],enc(xor(divhead(ts[]),iv[]),sskey[])) that may be sent on channel cc[] by 3 may be received at input {23}.
+The message (3,divrest(ts[])) that may be sent on channel ee[] by 30 may be received at input {31}.
+We have 3 ≠ 0.
+So event SuccCBC may be executed at {36}.
+event(SuccCBC).
+
+32. By 31, event(SuccCBC).
+The goal is reached, represented in the following fact:
+event(SuccCBC).
+
+
+Could not find a trace corresponding to this derivation.
+RESULT not event(SuccCBC) cannot be proved.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker(ts[]) is true.
+
+Query not event(SuccCBC) cannot be proved.
+
+--------------------------------------------------------------
+

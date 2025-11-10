@@ -1,0 +1,486 @@
+Linear part: No equation.
+Convergent part:
+con(divhead(mt),divrest(mt)) = mt
+Completing equations...
+Completed equations:
+con(divhead(mt),divrest(mt)) = mt
+Process 0 (that is, the initial process):
+(
+    {1}out(s, (iv,m,4))
+) | (
+    {2}!
+    {3}in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    {4}if (bl ≠ 1) then
+    (
+        {5}let newbl: bitstring = divhead(rm) in
+        {6}let newstream: bitstring = divrest(rm) in
+        {7}let newha: bitstring = comp(ha,newbl) in
+        {8}out(s, (newha,newstream,bl - 1))
+    )
+    else
+        {9}let MDh: bitstring = comp(ha,rm) in
+        {10}out(c, MDh);
+        {11}event PROOF
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}out(s, (iv,m,4))
+) | (
+    {2}!
+    {3}in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    {4}if (bl ≠ 1) then
+    (
+        {5}let newbl: bitstring = divhead(rm) in
+        {7}let newha: bitstring = comp(ha,newbl) in
+        {6}let newstream: bitstring = divrest(rm) in
+        {8}out(s, (newha,newstream,bl - 1))
+    )
+    else
+        {9}let MDh: bitstring = comp(ha,rm) in
+        {10}out(c, MDh);
+        {11}event PROOF
+)
+
+-- Query not event(PROOF) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not event(PROOF)
+goal reachable: event(PROOF)
+
+Derivation:
+
+1. The message (iv,m[],4) may be sent on channel s[] at output {1}.
+mess(s[],(iv,m[],4)).
+
+2. The message (iv,m[],4) that may be sent on channel s[] by 1 may be received at input {3}.
+We have 3 ≠ 0.
+So the message (comp(iv,divhead(m[])),divrest(m[]),3) may be sent on channel s[] at output {8}.
+mess(s[],(comp(iv,divhead(m[])),divrest(m[]),3)).
+
+3. The message (comp(iv,divhead(m[])),divrest(m[]),3) that may be sent on channel s[] by 2 may be received at input {3}.
+We have 2 ≠ 0.
+So the message (comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divrest(divrest(m[])),2) may be sent on channel s[] at output {8}.
+mess(s[],(comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divrest(divrest(m[])),2)).
+
+4. The message (comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divrest(divrest(m[])),2) that may be sent on channel s[] by 3 may be received at input {3}.
+We have 1 ≠ 0.
+So the message (comp(comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divhead(divrest(divrest(m[])))),divrest(divrest(divrest(m[]))),1) may be sent on channel s[] at output {8}.
+mess(s[],(comp(comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divhead(divrest(divrest(m[])))),divrest(divrest(divrest(m[]))),1)).
+
+5. The message (comp(comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divhead(divrest(divrest(m[])))),divrest(divrest(divrest(m[]))),1) that may be sent on channel s[] by 4 may be received at input {3}.
+So event PROOF may be executed at {11}.
+event(PROOF).
+
+6. By 5, event(PROOF).
+The goal is reached, represented in the following fact:
+event(PROOF).
+
+
+Initial state
+
+Additional knowledge of the attacker:
+c
+--------------------------------------------------------------
+New processes:
+    (
+        out(s, (iv,m,4))
+    ) | (
+        !
+        in(s, (ha: bitstring,rm: bitstring,bl: nat));
+        if (bl ≠ 1) then
+        (
+            let newbl: bitstring = divhead(rm) in
+            let newha: bitstring = comp(ha,newbl) in
+            let newstream: bitstring = divrest(rm) in
+            out(s, (newha,newstream,bl - 1))
+        )
+        else
+            let MDh: bitstring = comp(ha,rm) in
+            out(c, MDh);
+            event PROOF
+    )
+
+--------------------------------------------------------------
+1st process: Reduction |
+
+2nd process: Reduction ! 4 copy(ies)
+
+5th process: Beginning of process makeMD
+
+4th process: Beginning of process makeMD
+
+3rd process: Beginning of process makeMD
+
+2nd process: Beginning of process makeMD
+
+New processes:
+(
+    out(s, (iv,m,4))
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+)
+
+--------------------------------------------------------------
+1st process: out(s, (iv,m,4)) reduces with 2nd process: in(s, (ha: bitstring,rm: bitstring,bl: nat))
+
+New processes:
+(
+    0
+) | (
+    if (4 ≠ 1) then
+    (
+        let newbl: bitstring = divhead(m) in
+        let newha: bitstring = comp(iv,newbl) in
+        let newstream: bitstring = divrest(m) in
+        out(s, (newha,newstream,4 - 1))
+    )
+    else
+        let MDh: bitstring = comp(iv,m) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+)
+
+--------------------------------------------------------------
+1st process: Reduction 0
+
+1st process: if (4 ≠ 1) succeeds
+
+1st process: let newbl: bitstring = divhead(m) succeeds
+
+1st process: let newha: bitstring = comp(iv,divhead(m)) succeeds
+
+1st process: let newstream: bitstring = divrest(m) succeeds
+
+New processes:
+(
+    out(s, (comp(iv,divhead(m)),divrest(m),3))
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+)
+
+--------------------------------------------------------------
+1st process: out(s, (comp(iv,divhead(m)),divrest(m),3)) reduces with 2nd process: in(s, (ha: bitstring,rm: bitstring,bl: nat))
+
+New processes:
+(
+    0
+) | (
+    if (3 ≠ 1) then
+    (
+        let newbl: bitstring = divhead(divrest(m)) in
+        let newha: bitstring = comp(comp(iv,divhead(m)),newbl) in
+        let newstream: bitstring = divrest(divrest(m)) in
+        out(s, (newha,newstream,3 - 1))
+    )
+    else
+        let MDh: bitstring = comp(comp(iv,divhead(m)),divrest(m)) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+)
+
+--------------------------------------------------------------
+1st process: Reduction 0
+
+1st process: if (3 ≠ 1) succeeds
+
+1st process: let newbl: bitstring = divhead(divrest(m)) succeeds
+
+1st process: let newha: bitstring = comp(comp(iv,divhead(m)),divhead(divrest(m))) succeeds
+
+1st process: let newstream: bitstring = divrest(divrest(m)) succeeds
+
+New processes:
+(
+    out(s, (comp(comp(iv,divhead(m)),divhead(divrest(m))),divrest(divrest(m)),2))
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+)
+
+--------------------------------------------------------------
+1st process: out(s, (comp(comp(iv,divhead(m)),divhead(divrest(m))),divrest(divrest(m)),2)) reduces with 2nd process: in(s, (ha: bitstring,rm: bitstring,bl: nat))
+
+New processes:
+(
+    0
+) | (
+    if (2 ≠ 1) then
+    (
+        let newbl: bitstring = divhead(divrest(divrest(m))) in
+        let newha: bitstring = comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),newbl) in
+        let newstream: bitstring = divrest(divrest(divrest(m))) in
+        out(s, (newha,newstream,2 - 1))
+    )
+    else
+        let MDh: bitstring = comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divrest(divrest(m))) in
+        out(c, MDh);
+        event PROOF
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+)
+
+--------------------------------------------------------------
+1st process: Reduction 0
+
+1st process: if (2 ≠ 1) succeeds
+
+1st process: let newbl: bitstring = divhead(divrest(divrest(m))) succeeds
+
+1st process: let newha: bitstring = comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))) succeeds
+
+1st process: let newstream: bitstring = divrest(divrest(divrest(m))) succeeds
+
+New processes:
+(
+    out(s, (comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))),divrest(divrest(divrest(m))),1))
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        out(c, MDh);
+        event PROOF
+)
+
+--------------------------------------------------------------
+1st process: out(s, (comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))),divrest(divrest(divrest(m))),1)) reduces with 2nd process: in(s, (ha: bitstring,rm: bitstring,bl: nat))
+
+New processes:
+(
+    0
+) | (
+    if (1 ≠ 1) then
+    (
+        let newbl: bitstring = divhead(divrest(divrest(divrest(m)))) in
+        let newha: bitstring = comp(comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))),newbl) in
+        let newstream: bitstring = divrest(divrest(divrest(divrest(m)))) in
+        out(s, (newha,newstream,1 - 1))
+    )
+    else
+        let MDh: bitstring = comp(comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))),divrest(divrest(divrest(m)))) in
+        out(c, MDh);
+        event PROOF
+)
+
+--------------------------------------------------------------
+1st process: Reduction 0
+
+1st process: if (1 ≠ 1): else branch taken
+
+1st process: let MDh: bitstring = comp(comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))),divrest(divrest(divrest(m)))) succeeds
+
+1st process: out(c, ~M) with ~M = comp(comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))),divrest(divrest(divrest(m)))) done
+
+Additional knowledge of the attacker:
+~M = comp(comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))),divrest(divrest(divrest(m))))
+--------------------------------------------------------------
+1st process: event PROOF executed; it is a goal
+
+New processes:
+    0
+
+--------------------------------------------------------------
+The event PROOF is executed at {11} in copy a.
+A trace has been found.
+RESULT not event(PROOF) is false.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not event(PROOF) is false.
+
+--------------------------------------------------------------
+

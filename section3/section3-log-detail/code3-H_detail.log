@@ -1,0 +1,1153 @@
+Linear part: No equation.
+Convergent part:
+con(divhead(mt),divrest(mt)) = mt
+Completing equations...
+Completed equations:
+con(divhead(mt),divrest(mt)) = mt
+Process 0 (that is, the initial process):
+(
+    {1}new m1: bitstring;
+    {2}new m2: bitstring;
+    {3}out(c, (m2,2));
+    {4}out(s, (iv,m1,2,m1));
+    {9}get MD_h(=m1,MDh1: bitstring) in
+    {5}out(c, MDh1);
+    {6}out(s, (MDh1,m2,2,con(m1,m2)));
+    {8}get MD_h(=con(m1,m2),MDh12: bitstring) in
+    {7}insert MD_h_check(MDh12)
+) | (
+    {10}!
+    {11}in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    {12}if (bl ≠ 1) then
+    (
+        {13}let newbl: bitstring = divhead(rm) in
+        {14}let newstream: bitstring = divrest(rm) in
+        {15}let newha: bitstring = comp(ha,newbl) in
+        {16}out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        {17}let MDh: bitstring = comp(ha,rm) in
+        {18}insert MD_h(mm,MDh)
+) | (
+    {19}!
+    {20}in(c, MDh12': bitstring);
+    {22}get MD_h_check(=MDh12') in
+    {21}event SUCCESS
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}new m1: bitstring;
+    {2}new m2: bitstring;
+    {3}out(c, (m2,2));
+    {4}out(s, (iv,m1,2,m1));
+    {9}get MD_h(=m1,MDh1: bitstring) in
+    {5}out(c, MDh1);
+    {6}out(s, (MDh1,m2,2,con(m1,m2)));
+    {8}get MD_h(=con(m1,m2),MDh12: bitstring) in
+    {7}insert MD_h_check(MDh12)
+) | (
+    {10}!
+    {11}in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    {12}if (bl ≠ 1) then
+    (
+        {13}let newbl: bitstring = divhead(rm) in
+        {15}let newha: bitstring = comp(ha,newbl) in
+        {14}let newstream: bitstring = divrest(rm) in
+        {16}out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        {17}let MDh: bitstring = comp(ha,rm) in
+        {18}insert MD_h(mm,MDh)
+) | (
+    {19}!
+    {20}in(c, MDh12': bitstring);
+    {22}get MD_h_check(=MDh12') in
+    {21}event SUCCESS
+)
+
+-- Query not event(SUCCESS) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not event(SUCCESS)
+goal reachable: event(SUCCESS)
+
+Derivation:
+
+1. The message (m2[],2) may be sent to the attacker at output {3}.
+attacker((m2[],2)).
+
+2. By 1, the attacker may know (m2[],2).
+Using the function 1-proj-2-tuple the attacker may obtain m2[].
+attacker(m2[]).
+
+3. By 2, the attacker may know m2[].
+Using the function divrest the attacker may obtain divrest(m2[]).
+attacker(divrest(m2[])).
+
+4. By 2, the attacker may know m2[].
+Using the function divhead the attacker may obtain divhead(m2[]).
+attacker(divhead(m2[])).
+
+5. The message (iv,m1[],2,m1[]) may be sent on channel s[] at output {4}.
+mess(s[],(iv,m1[],2,m1[])).
+
+6. The message (iv,m1[],2,m1[]) that may be sent on channel s[] by 5 may be received at input {11}.
+We have 1 ≠ 0.
+So the message (comp(iv,divhead(m1[])),divrest(m1[]),1,m1[]) may be sent on channel s[] at output {16}.
+mess(s[],(comp(iv,divhead(m1[])),divrest(m1[]),1,m1[])).
+
+7. The message (comp(iv,divhead(m1[])),divrest(m1[]),1,m1[]) that may be sent on channel s[] by 6 may be received at input {11}.
+So the entry MD_h(m1[],comp(comp(iv,divhead(m1[])),divrest(m1[]))) may be inserted in a table at insert {18}.
+table(MD_h(m1[],comp(comp(iv,divhead(m1[])),divrest(m1[])))).
+
+8. The entry MD_h(m1[],comp(comp(iv,divhead(m1[])),divrest(m1[]))) that may be in a table by 7 may be read at get {9}.
+So the message comp(comp(iv,divhead(m1[])),divrest(m1[])) may be sent to the attacker at output {5}.
+attacker(comp(comp(iv,divhead(m1[])),divrest(m1[]))).
+
+9. By 8, the attacker may know comp(comp(iv,divhead(m1[])),divrest(m1[])).
+By 4, the attacker may know divhead(m2[]).
+Using the function comp the attacker may obtain comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])).
+attacker(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[]))).
+
+10. By 9, the attacker may know comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])).
+By 3, the attacker may know divrest(m2[]).
+Using the function comp the attacker may obtain comp(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[])).
+attacker(comp(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[]))).
+
+11. The message (iv,m1[],2,m1[]) that may be sent on channel s[] by 5 may be received at input {11}.
+We have 1 ≠ 0.
+So the message (comp(iv,divhead(m1[])),divrest(m1[]),1,m1[]) may be sent on channel s[] at output {16}.
+mess(s[],(comp(iv,divhead(m1[])),divrest(m1[]),1,m1[])).
+
+12. The message (comp(iv,divhead(m1[])),divrest(m1[]),1,m1[]) that may be sent on channel s[] by 11 may be received at input {11}.
+So the entry MD_h(m1[],comp(comp(iv,divhead(m1[])),divrest(m1[]))) may be inserted in a table at insert {18}.
+table(MD_h(m1[],comp(comp(iv,divhead(m1[])),divrest(m1[])))).
+
+13. The message (iv,m1[],2,m1[]) that may be sent on channel s[] by 5 may be received at input {11}.
+We have 1 ≠ 0.
+So the message (comp(iv,divhead(m1[])),divrest(m1[]),1,m1[]) may be sent on channel s[] at output {16}.
+mess(s[],(comp(iv,divhead(m1[])),divrest(m1[]),1,m1[])).
+
+14. The message (comp(iv,divhead(m1[])),divrest(m1[]),1,m1[]) that may be sent on channel s[] by 13 may be received at input {11}.
+So the entry MD_h(m1[],comp(comp(iv,divhead(m1[])),divrest(m1[]))) may be inserted in a table at insert {18}.
+table(MD_h(m1[],comp(comp(iv,divhead(m1[])),divrest(m1[])))).
+
+15. The entry MD_h(m1[],comp(comp(iv,divhead(m1[])),divrest(m1[]))) that may be in a table by 14 may be read at get {9}.
+So the message (comp(comp(iv,divhead(m1[])),divrest(m1[])),m2[],2,con(m1[],m2[])) may be sent on channel s[] at output {6}.
+mess(s[],(comp(comp(iv,divhead(m1[])),divrest(m1[])),m2[],2,con(m1[],m2[]))).
+
+16. The message (comp(comp(iv,divhead(m1[])),divrest(m1[])),m2[],2,con(m1[],m2[])) that may be sent on channel s[] by 15 may be received at input {11}.
+We have 1 ≠ 0.
+So the message (comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[]),1,con(m1[],m2[])) may be sent on channel s[] at output {16}.
+mess(s[],(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[]),1,con(m1[],m2[]))).
+
+17. The message (comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[]),1,con(m1[],m2[])) that may be sent on channel s[] by 16 may be received at input {11}.
+So the entry MD_h(con(m1[],m2[]),comp(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[]))) may be inserted in a table at insert {18}.
+table(MD_h(con(m1[],m2[]),comp(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[])))).
+
+18. The entry MD_h(m1[],comp(comp(iv,divhead(m1[])),divrest(m1[]))) that may be in a table by 12 may be read at get {9}.
+The entry MD_h(con(m1[],m2[]),comp(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[]))) that may be in a table by 17 may be read at get {8}.
+So the entry MD_h_check(comp(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[]))) may be inserted in a table at insert {7}.
+table(MD_h_check(comp(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[])))).
+
+19. The message comp(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[])) that the attacker may have by 10 may be received at input {20}.
+The entry MD_h_check(comp(comp(comp(comp(iv,divhead(m1[])),divrest(m1[])),divhead(m2[])),divrest(m2[]))) that may be in a table by 18 may be read at get {22}.
+So event SUCCESS may be executed at {21}.
+event(SUCCESS).
+
+20. By 19, event(SUCCESS).
+The goal is reached, represented in the following fact:
+event(SUCCESS).
+
+
+Initial state
+
+Additional knowledge of the attacker:
+c
+--------------------------------------------------------------
+New processes:
+    (
+        new m1: bitstring;
+        new m2: bitstring;
+        out(c, (m2,2));
+        out(s, (iv,m1,2,m1));
+        get MD_h(=m1,MDh1: bitstring) in
+        out(c, MDh1);
+        out(s, (MDh1,m2,2,con(m1,m2)));
+        get MD_h(=con(m1,m2),MDh12: bitstring) in
+        insert MD_h_check(MDh12)
+    ) | (
+        !
+        in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+        if (bl ≠ 1) then
+        (
+            let newbl: bitstring = divhead(rm) in
+            let newha: bitstring = comp(ha,newbl) in
+            let newstream: bitstring = divrest(rm) in
+            out(s, (newha,newstream,bl - 1,mm))
+        )
+        else
+            let MDh: bitstring = comp(ha,rm) in
+            insert MD_h(mm,MDh)
+    ) | (
+        !
+        in(c, MDh12': bitstring);
+        get MD_h_check(=MDh12') in
+        event SUCCESS
+    )
+
+--------------------------------------------------------------
+1st process: Reduction |
+
+2nd process: Reduction |
+
+3rd process: Reduction ! 1 copy(ies)
+
+3rd process: Beginning of process LEA_CHECK
+
+2nd process: Reduction ! 8 copy(ies)
+
+9th process: Beginning of process makeMD
+
+8th process: Beginning of process makeMD
+
+7th process: Beginning of process makeMD
+
+6th process: Beginning of process makeMD
+
+5th process: Beginning of process makeMD
+
+4th process: Beginning of process makeMD
+
+3rd process: Beginning of process makeMD
+
+2nd process: Beginning of process makeMD
+
+1st process: new m1: bitstring creating m1_1
+
+1st process: new m2: bitstring creating m2_1
+
+1st process: out(c, (~M,2)) with ~M = m2_1 done
+
+Additional knowledge of the attacker:
+divhead(~M) = divhead(m2_1)
+divrest(~M) = divrest(m2_1)
+~M = m2_1
+--------------------------------------------------------------
+New processes:
+(
+    out(s, (iv,m1_1,2,m1_1));
+    get MD_h(=m1_1,MDh1: bitstring) in
+    out(c, MDh1);
+    out(s, (MDh1,m2_1,2,con(m1_1,m2_1)));
+    get MD_h(=con(m1_1,m2_1),MDh12: bitstring) in
+    insert MD_h_check(MDh12)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(c, MDh12': bitstring);
+    get MD_h_check(=MDh12') in
+    event SUCCESS
+)
+
+--------------------------------------------------------------
+1st process: out(s, (iv,m1_1,2,m1_1)) reduces with 2nd process: in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring))
+
+New processes:
+(
+    get MD_h(=m1_1,MDh1: bitstring) in
+    out(c, MDh1);
+    out(s, (MDh1,m2_1,2,con(m1_1,m2_1)));
+    get MD_h(=con(m1_1,m2_1),MDh12: bitstring) in
+    insert MD_h_check(MDh12)
+) | (
+    if (2 ≠ 1) then
+    (
+        let newbl: bitstring = divhead(m1_1) in
+        let newha: bitstring = comp(iv,newbl) in
+        let newstream: bitstring = divrest(m1_1) in
+        out(s, (newha,newstream,2 - 1,m1_1))
+    )
+    else
+        let MDh: bitstring = comp(iv,m1_1) in
+        insert MD_h(m1_1,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(c, MDh12': bitstring);
+    get MD_h_check(=MDh12') in
+    event SUCCESS
+)
+
+--------------------------------------------------------------
+2nd process: if (2 ≠ 1) succeeds
+
+2nd process: let newbl: bitstring = divhead(m1_1) succeeds
+
+2nd process: let newha: bitstring = comp(iv,divhead(m1_1)) succeeds
+
+2nd process: let newstream: bitstring = divrest(m1_1) succeeds
+
+New processes:
+(
+    get MD_h(=m1_1,MDh1: bitstring) in
+    out(c, MDh1);
+    out(s, (MDh1,m2_1,2,con(m1_1,m2_1)));
+    get MD_h(=con(m1_1,m2_1),MDh12: bitstring) in
+    insert MD_h_check(MDh12)
+) | (
+    out(s, (comp(iv,divhead(m1_1)),divrest(m1_1),1,m1_1))
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(c, MDh12': bitstring);
+    get MD_h_check(=MDh12') in
+    event SUCCESS
+)
+
+--------------------------------------------------------------
+2nd process: out(s, (comp(iv,divhead(m1_1)),divrest(m1_1),1,m1_1)) reduces with 3rd process: in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring))
+
+New processes:
+(
+    get MD_h(=m1_1,MDh1: bitstring) in
+    out(c, MDh1);
+    out(s, (MDh1,m2_1,2,con(m1_1,m2_1)));
+    get MD_h(=con(m1_1,m2_1),MDh12: bitstring) in
+    insert MD_h_check(MDh12)
+) | (
+    0
+) | (
+    if (1 ≠ 1) then
+    (
+        let newbl: bitstring = divhead(divrest(m1_1)) in
+        let newha: bitstring = comp(comp(iv,divhead(m1_1)),newbl) in
+        let newstream: bitstring = divrest(divrest(m1_1)) in
+        out(s, (newha,newstream,1 - 1,m1_1))
+    )
+    else
+        let MDh: bitstring = comp(comp(iv,divhead(m1_1)),divrest(m1_1)) in
+        insert MD_h(m1_1,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(c, MDh12': bitstring);
+    get MD_h_check(=MDh12') in
+    event SUCCESS
+)
+
+--------------------------------------------------------------
+2nd process: Reduction 0
+
+2nd process: if (1 ≠ 1): else branch taken
+
+2nd process: let MDh: bitstring = comp(comp(iv,divhead(m1_1)),divrest(m1_1)) succeeds
+
+2nd process: insert MD_h(m1_1,comp(comp(iv,divhead(m1_1)),divrest(m1_1))) done
+
+2nd process: Reduction 0
+
+1st process: get MD_h(=m1_1,MDh1: bitstring) done with entry MD_h(m1_1,comp(comp(iv,divhead(m1_1)),divrest(m1_1)))
+
+1st process: out(c, ~M_1) with ~M_1 = comp(comp(iv,divhead(m1_1)),divrest(m1_1)) done
+
+Additional knowledge of the attacker:
+comp(comp(~M_1,divhead(~M)),divrest(~M)) = comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1))
+comp(~M_1,divhead(~M)) = comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1))
+~M_1 = comp(comp(iv,divhead(m1_1)),divrest(m1_1))
+--------------------------------------------------------------
+New processes:
+(
+    out(s, (comp(comp(iv,divhead(m1_1)),divrest(m1_1)),m2_1,2,con(m1_1,m2_1)));
+    get MD_h(=con(m1_1,m2_1),MDh12: bitstring) in
+    insert MD_h_check(MDh12)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(c, MDh12': bitstring);
+    get MD_h_check(=MDh12') in
+    event SUCCESS
+)
+
+--------------------------------------------------------------
+1st process: out(s, (comp(comp(iv,divhead(m1_1)),divrest(m1_1)),m2_1,2,con(m1_1,m2_1))) reduces with 2nd process: in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring))
+
+New processes:
+(
+    get MD_h(=con(m1_1,m2_1),MDh12: bitstring) in
+    insert MD_h_check(MDh12)
+) | (
+    if (2 ≠ 1) then
+    (
+        let newbl: bitstring = divhead(m2_1) in
+        let newha: bitstring = comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),newbl) in
+        let newstream: bitstring = divrest(m2_1) in
+        out(s, (newha,newstream,2 - 1,con(m1_1,m2_1)))
+    )
+    else
+        let MDh: bitstring = comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),m2_1) in
+        insert MD_h(con(m1_1,m2_1),MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(c, MDh12': bitstring);
+    get MD_h_check(=MDh12') in
+    event SUCCESS
+)
+
+--------------------------------------------------------------
+2nd process: if (2 ≠ 1) succeeds
+
+2nd process: let newbl: bitstring = divhead(m2_1) succeeds
+
+2nd process: let newha: bitstring = comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)) succeeds
+
+2nd process: let newstream: bitstring = divrest(m2_1) succeeds
+
+New processes:
+(
+    get MD_h(=con(m1_1,m2_1),MDh12: bitstring) in
+    insert MD_h_check(MDh12)
+) | (
+    out(s, (comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1),1,con(m1_1,m2_1)))
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(c, MDh12': bitstring);
+    get MD_h_check(=MDh12') in
+    event SUCCESS
+)
+
+--------------------------------------------------------------
+2nd process: out(s, (comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1),1,con(m1_1,m2_1))) reduces with 3rd process: in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring))
+
+New processes:
+(
+    get MD_h(=con(m1_1,m2_1),MDh12: bitstring) in
+    insert MD_h_check(MDh12)
+) | (
+    0
+) | (
+    if (1 ≠ 1) then
+    (
+        let newbl: bitstring = divhead(divrest(m2_1)) in
+        let newha: bitstring = comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),newbl) in
+        let newstream: bitstring = divrest(divrest(m2_1)) in
+        out(s, (newha,newstream,1 - 1,con(m1_1,m2_1)))
+    )
+    else
+        let MDh: bitstring = comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1)) in
+        insert MD_h(con(m1_1,m2_1),MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(c, MDh12': bitstring);
+    get MD_h_check(=MDh12') in
+    event SUCCESS
+)
+
+--------------------------------------------------------------
+2nd process: Reduction 0
+
+2nd process: if (1 ≠ 1): else branch taken
+
+2nd process: let MDh: bitstring = comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1)) succeeds
+
+2nd process: insert MD_h(con(m1_1,m2_1),comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1))) done
+
+2nd process: Reduction 0
+
+1st process: get MD_h(=con(m1_1,m2_1),MDh12: bitstring) done with entry MD_h(con(m1_1,m2_1),comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1)))
+
+1st process: insert MD_h_check(comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1))) done
+
+1st process: Reduction 0
+
+New processes:
+(
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(c, MDh12': bitstring);
+    get MD_h_check(=MDh12') in
+    event SUCCESS
+)
+
+--------------------------------------------------------------
+5th process: in(c, MDh12': bitstring) done with message comp(comp(~M_1,divhead(~M)),divrest(~M)) = comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1))
+
+5th process: get MD_h_check(=comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1))) done with entry MD_h_check(comp(comp(comp(comp(iv,divhead(m1_1)),divrest(m1_1)),divhead(m2_1)),divrest(m2_1)))
+
+5th process: event SUCCESS executed; it is a goal
+
+New processes:
+(
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    in(s, (ha: bitstring,rm: bitstring,bl: nat,mm: bitstring));
+    if (bl ≠ 1) then
+    (
+        let newbl: bitstring = divhead(rm) in
+        let newha: bitstring = comp(ha,newbl) in
+        let newstream: bitstring = divrest(rm) in
+        out(s, (newha,newstream,bl - 1,mm))
+    )
+    else
+        let MDh: bitstring = comp(ha,rm) in
+        insert MD_h(mm,MDh)
+) | (
+    0
+)
+
+--------------------------------------------------------------
+The event SUCCESS is executed at {21} in copy a.
+A trace has been found.
+RESULT not event(SUCCESS) is false.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not event(SUCCESS) is false.
+
+--------------------------------------------------------------
+
