@@ -1,0 +1,9 @@
+(* Code.4: EXAMPLE of One-wayness not ProVerif *)
+(* Please note that this is not ProVerif code.*)
+
+find-preimage(h) {
+while {
+      m = rand_message()
+      if hash(m) == h then return m
+      }
+}
