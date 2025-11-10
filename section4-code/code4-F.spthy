@@ -1,0 +1,60 @@
+//  (* Code.4-F: AEAD_mac_then_enc_rogaway_scheme fot TAMF02&TAMF04 *)
+theory indcpa_AEAD_mac_then_enc_rogaway_scheme_TAMF04
+begin
+builtins: signing, revealing-signing
+functions: mac/2,enc/3,dec/3,verifyMac/3,true/0,left/1,right/1
+equations: dec(k2, (enc(m, k2, n)), n) = m
+equations: verifyMac(mac(m, k1), m, k1) = true
+equations: left(<x.1, x.2>) = x.1, right(<x.1, x.2>) = x.2
+
+rule Setup: [Fr(~k1), Fr(~k2), Fr(~key)] --[OnlyOnce(), Setup(~k1, ~k2, ~key)]-> [!Key(~k1), !Key(~k2), !Skey($A, ~key)]
+
+rule attackerkey:
+  [ !Skey($A, key) ] --[ Oracle($A) ]-> [ Out(key) ]
+
+rule Attacker_make_message:
+ [ Fr(m_)] --[ ]-> [ Out(<$A,m_>),St_Oracle(m_) ]
+
+rule Oracle_sign:
+ [ In(<$A, m_>), Fr(~key) ,St_Oracle(m_)] --[Oracle($A), Sender($B), Role('Oracle')]->  [ Out(sign(<$A, m_>,~key)), St_ReceiveKeyOraclesign(m_,~key) ]
+
+rule Alice_makemac_then_enc:
+let
+alicetag = mac(<~m, ~nonce, ~data>, ~k1)
+in
+[Fr(~m), Fr(~key), !Key(~k1), !Key(~k2), Fr(~nonce), Fr(~data)] --[Sendmac(~k1, alicetag, ~nonce, ~data), Secret_A(~m), Oracle($A), Signed($A, ~m)]-> [Out(<enc(<~m, alicetag>, ~k2, ~nonce), ~nonce, ~data, alicetag>), St_ReceiveKey(~m,~key)]
+
+rule Encrypt_oracle:
+[Fr(~m), Fr(r), !Key(~k2), In(alicetag),Fr(~nonce), Fr(~data), Fr(r)] --[]-> [Out(<enc(<~m, alicetag>, ~k2, ~nonce), ~nonce, ~data, alicetag>)]
+
+rule Bob_verifymac_decrypt:
+let
+m_tag = dec(~k2, c, ~nonce)
+alicetag_1 = right(m_tag)
+m_1 = left(m_tag)
+in
+[St_ReceiveKeyOraclesign(m_,key_),In(<c, ~nonce, ~data, alicetag>),St_ReceiveKey(~m,key), !Key(~k1), !Key(~k2),In(sign(<$B, ~m>,~k2))] --[Eq(verifyMac(alicetag, m_1, ~k1), true), Authentic(~k1, alicetag_1, ~nonce, ~data), Notequalvalue(<revealSign(<$A, m_>,~k1), sign(<$B, ~m>,~k2)>),Secret_B(m_1), Verified($A, $B, ~m)]-> []
+
+
+restriction unique:
+  "All #i #j. OnlyOnce() @#i & OnlyOnce() @#j ==> #i = #j"
+
+restriction Equality:
+"All x y #i. Eq(x, y)@#i ==> x=y"
+
+lemma message_secret_alice:
+"All m #i #j. Secret_A(m)@i & K(m)@j ==>F"
+
+lemma message_secret_bob:
+"All m #i #j. Secret_B(m)@i & K(m)@j ==>F"
+
+lemma message_authentication:
+"All k t n d #i. Authentic(k, t, n, d) @i ==> Ex #j. Sendmac(k, t, n, d)@j & #j<#i"
+
+lemma ow_value_notequal:
+ "All #i #j x. Notequalvalue(x)@i & Notequalvalue(x)@j ==> #i=#j"
+
+lemma existential_unforgeability:
+"All X Y m #i. Verified(X, Y, m)@i ==> ((Ex #j. Signed(X, m)@j & j<i) | (Ex #l. Oracle(X)@l & l<i) )"
+
+end
