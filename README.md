@@ -11,11 +11,11 @@
   * Code and Logs executed in ProVerif<br>
     Optional detailed versions of Logs
 
-## Section4: Formalization Methods and Verification of Advanced Attack Model Verification Frameworks in Tamarin Prover
+## Section 4: Formalization Methods and Verification of Advanced Attack Model Verification Frameworks in Tamarin Prover
   * Code and Log executed in Tamarin Prover<br>
     (However, Interactive Mode is not posted as it depends on the browser environment)
 
-## Section5: Proposal for Convergent Technology of ProVerif and Tamarin Prover
+## Section 5: Proposal for Convergent Technology of ProVerif and Tamarin Prover
   * Code and Log executed in ProVerif<br>
   * Code and logs executed in Tamarin Prover<br>
     (However, Interactive Mode is not included as it depends on the browser environment)
@@ -38,15 +38,15 @@ Execution confirmed in the following versions
 ご理解とご協力をお願いします。<br>
 
 
-## Section3: ProVerif における反復構造およびデータ構造の形式化手法と検証
+## Section 3: ProVerif における反復構造およびデータ構造の形式化手法と検証
 * ProVerifで実行したCodeとLogを掲載<br>
    Logはオプションのdetail版も掲載<br>
 
-## Section4: Tamarin Prover における高度な攻撃モデル検証フレームワークの形式化手法と検証
+## Section 4: Tamarin Prover における高度な攻撃モデル検証フレームワークの形式化手法と検証
 * Tamarin Proverで実行したCodeとLogを掲載<br>
   (但し、Interative Modeはブラウザの環境に依存するため、掲載しない)<br>
 
-## Section5: ProVerif とTamarin Prover の融合的技術の提案
+## Section 5: ProVerif とTamarin Prover の融合的技術の提案
 * ProVerifで実行したCodeとLogを掲載<br>
 * Tamarin Proverで実行したCodeとLogを掲載<br>
   (但し、Interative Modeはブラウザの環境に依存するため、掲載しない)<br>
