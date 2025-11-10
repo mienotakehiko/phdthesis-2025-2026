@@ -1,6 +1,0 @@
-//  (* Code.5-B: Tamarin Prover - Observational equivalence model *)
-builtins: hashing
-rule Setup:
- [Fr(~nonce)] --> [!Only(~nonce)]
- rule Out_Hash:
- [!Only(~nonce), Fr(~m)] --> [Out(<~m, diff(~nonce, h(~m))>)]
