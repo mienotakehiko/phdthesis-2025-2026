@@ -1,67 +1,28 @@
-# Takehiko Mieno phd thesis 2025-2026 All Code
-# ProVerif for Section3 
-  Currently creating a document
-# Attack Method Model Framework for the Security Verification of Tamarin Prover (TAMF) for Section4
-  Currently creating a document <br>
-・This folder contains the needed material to reproduce our case-studies.　　<br>
-・Models can be validated using the latest Tamarin prover.
-# Integrated Technology of ProVerif and Tamarin Prover for Section5
-  Currently creating a document
+# All code and execution results used in the doctoral thesis of Takehiko Mieno (Author) are published here.
 
----
-File Description
-
- 1. &emsp;code1.spthy <br>
- 2. &emsp;code2.spthy <br>
- 3. &emsp;code3.spthy <br>
- 4. &emsp;code4.spthy <br>
- 5. &emsp;code5.spthy <br>
- 6. &emsp;code5-ind_cpa.spthy <br>
- 7. &emsp;code5.log <br>
- 8. &emsp;code6.spthy <br>
- 9. &emsp;code6.log <br>
-10. &emsp;code7.spthy <br>
-
----
-1.&emsp;code1.spthy
-
-  &emsp;&emsp;TAMF-01 Verification code. <br>
-
-2.&emsp;code2.spthy
-
-  &emsp;&emsp;TAMF-02 Verification code. <br>
-
-3.&emsp;code3.spthy
-
-  &emsp;&emsp;TAMF-03 Verification code. <br>
-  
-4.&emsp;code4.spthy
-
-  &emsp;&emsp;TAMF-04 Verification code. <br>
-
-5.&emsp;code5.spthy
-
-  &emsp;&emsp;Verification code for IBE with TAMF-01. <br>
-
-6.&emsp;code5-ind_cpa.spthy
-
-  &emsp;&emsp;Verification code for IBE with TAMF-02. <br>
-
-7.&emsp;code5.log
-
-  &emsp;&emsp;Verification results: For No.6 > code5-ind_cpa.spthy <br>
-
-8.&emsp;code6.spthy
-
-  &emsp;&emsp;&emsp;Verification code for IBE-CHK with TAMF-03 & TAMF-04. <br>
-
-9.&emsp;code6.log
-
- &emsp;&emsp;erification results: For No.8 > code6.spthy <br>
-
-10.&emsp;code7.spthy
-
-  &emsp;&emsp;Verification code for BF-IBE. <br>
+ All copyrights pertaining to the published content belong to me.<br>
+ Unauthorized reproduction or republication is strictly prohibited.<br>
+ No republication on other websites, printed materials, electronic media, or any other medium is permitted.<br>
+ Unauthorized republication may result in legal action.<br>
+ Your understanding and cooperation are appreciated.<br>
 
 
----
+## Section 3: Formalization and Verification of Iterative Structures and Data Structures in ProVerif
+  * Code and Logs executed in ProVerif<br>
+    Optional detailed versions of Logs
+
+## Section4: Formalization Methods and Verification of Advanced Attack Model Verification Frameworks in Tamarin Prover
+  * Code and Log executed in Tamarin Prover<br>
+    (However, Interactive Mode is not posted as it depends on the browser environment)
+
+## Section5: Proposal for Convergent Technology of ProVerif and Tamarin Prover
+  * Code and Log executed in ProVerif<br>
+  * Code and logs executed in Tamarin Prover<br>
+    (However, Interactive Mode is not included as it depends on the browser environment)
+
+### (Supplement)
+Execution confirmed in the following versions
+   * ProVerif version 2.05<br>
+   * Tamarin Prover version 1.10.0<br>
+
+(C) 2025 Takehiko Mieno
