@@ -1,0 +1,33 @@
+// (* Code.4-A: Send and Receive Messages *)
+theory alice_to_bob
+begin
+builtins: symmetric-encryption
+
+rule Setup: [Fr(~k)] --[OnlyOnce(), Setup(~k)]-> [!Key(~k)]
+
+rule Alice_send:
+ [Fr(~m), !Key(~k)] --[Send($A, ~m, ~k), Secret_A(~m)]-> 
+ [Out(<$A, $B, senc(~m, ~k)>)]
+
+rule Bob_receive:
+  let
+  m_ = sdec(c, ~k)
+  in
+  [In(<$A, $B, c>), !Key(~k)] --[Receive($A, m_, ~k),
+  Secret_B(m_)]-> []
+
+restriction unique:
+ "All #i #j. OnlyOnce() @#i & OnlyOnce() @#j ==> #i = #j"
+
+lemma message_secret_alice:
+ "All m #i #j. Secret_A(m)@i & K(m)@j ==>F"
+ 
+lemma message_secret_bob:
+  "All m #i #j. Secret_B(m)@i & K(m)@j ==>F"
+
+lemma injective_message_agreement:
+  "All alice m k #i. Receive(alice, m, k)@#i 
+  ==> (Ex #j. Send(alice, m, k) @#j & #j < #i & 
+  not (Ex #p. Receive(alice, m, k) @#p & not (#i = #p)))"
+
+end

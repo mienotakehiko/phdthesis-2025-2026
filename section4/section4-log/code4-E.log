@@ -1,0 +1,205 @@
+theory euf_cma_asymmetric_encryption_TAMF04 begin
+
+// Function signature and definition of the equational theory E
+
+functions: adec/2, aenc/2, fst/1, getMessage/1, pair/2, pk/1,
+           revealSign/2, revealVerify/3, sign/2, snd/1, true/0, verify/3
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    getMessage(revealSign(x.1, x.2)) = x.1,
+    revealVerify(revealSign(x.1, x.2), x.1, pk(x.2)) = true,
+    snd(<x.1, x.2>) = x.2,
+    verify(sign(x.1, x.2), x.1, pk(x.2)) = true
+
+
+
+
+
+
+
+
+
+
+
+rule (modulo E) Setup:
+   [ Fr( ~key ) ]
+  --[ OnlyOnce( ), Setup( ~key ) ]->
+   [ !Sk( $A, ~key ), !Pk( $A, pk(~key) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Get_pk:
+   [ !Pk( S, publickey ) ] --> [ Out( publickey ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) attackerkey:
+   [ !Sk( $A, key ) ] --[ Oracle( $B ) ]-> [ Out( key ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Attacker_make_message:
+   [ Fr( m_ ) ] --> [ Out( <$B, m_> ), St_Oracle( m_ ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Sender_messages_signs:
+   [ Fr( ~m ), !Sk( $A, ~key ) ]
+  --[ Send( $A, ~m ), Signed( $A, ~m ), Secret( ~m ), Role( 'Sender' ) ]->
+   [ Out( <$A, ~m, sign(~m, ~key)> ), St_Sender( $A, ~m ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Sign_Attacker:
+   [ !Pk( $A, ~key ), In( <$A, m_> ), St_Oracle( m_ ) ]
+  --[ Send( $B, revealSign(m_, ~key) ), Secret( m_ ), Role( 'Oracle' ) ]->
+   [ Out( <revealSign(m_, ~key), m_> ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Receiver_verify:
+   [
+   In( <$A, ~m, sign(~m, ~key)> ), !Pk( $A, pk(~key) ), St_Sender( $A, ~m ),
+   !Sk( $A, ~key )
+   ]
+  --[
+  Finish( ), Secret( ~m ), Authentic( $A, ~m ),
+  Eq( verify(sign(~m, ~key), ~m, pk(~key)), true ), Verified( $A, $B, ~m )
+  ]->
+   [ ]
+
+  /*
+  rule (modulo AC) Receiver_verify:
+     [
+     In( <$A, ~m, sign(~m, ~key)> ), !Pk( $A, pk(~key) ), St_Sender( $A, ~m ),
+     !Sk( $A, ~key )
+     ]
+    --[
+    Finish( ), Secret( ~m ), Authentic( $A, ~m ), Eq( true, true ),
+    Verified( $A, $B, ~m )
+    ]->
+     [ ]
+  */
+
+restriction Equality:
+  "∀ x y #i. (Eq( x, y ) @ #i) ⇒ (x = y)"
+  // safety formula
+
+lemma existential_unforgeability:
+  all-traces
+  "∀ X Y m #i.
+    (Verified( X, Y, m ) @ #i) ⇒
+    ((∃ #j. (Signed( X, m ) @ #j) ∧ (#j < #i)) ∨
+     (∃ #l. (Oracle( X ) @ #l) ∧ (#l < #i)))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ X Y m #i.
+  (Verified( X, Y, m ) @ #i)
+ ∧
+  (∀ #j. (Signed( X, m ) @ #j) ⇒ ¬(#j < #i)) ∧
+  (∀ #l. (Oracle( X ) @ #l) ⇒ ¬(#l < #i))"
+*/
+simplify
+solve( !Pk( $A, pk(~key) ) ▶₁ #i )
+  case Setup
+  solve( St_Sender( $A, ~m ) ▶₂ #i )
+    case Sender_messages_signs
+    by contradiction /* from formulas */
+  qed
+qed
+
+lemma messages_authentication:
+  all-traces
+  "∀ X M #i.
+    ((Authentic( X, M ) @ #i) ∧ (¬(∃ #l. Oracle( X ) @ #l))) ⇒
+    (∃ #j. (Send( X, M ) @ #j) ∧ (#j < #i))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ X M #i.
+  (Authentic( X, M ) @ #i)
+ ∧
+  (∀ #l. (Oracle( X ) @ #l) ⇒ ⊥) ∧
+  (∀ #j. (Send( X, M ) @ #j) ⇒ ¬(#j < #i))"
+*/
+simplify
+solve( !Pk( $A, pk(~key) ) ▶₁ #i )
+  case Setup
+  solve( St_Sender( $A, ~m ) ▶₂ #i )
+    case Sender_messages_signs
+    by contradiction /* from formulas */
+  qed
+qed
+
+lemma sign_verify:
+  all-traces
+  "∀ Y M #i.
+    (((Authentic( Y, M ) @ #i) ∧ (¬(∃ #k. Oracle( Y ) @ #k))) ∧
+     (∃ a b #l. Eq( a, b ) @ #l)) ⇒
+    (∃ #j. (Send( Y, M ) @ #j) ∧ (#j < #i))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ Y M #i.
+  (Authentic( Y, M ) @ #i)
+ ∧
+  (∀ #k. (Oracle( Y ) @ #k) ⇒ ⊥) ∧
+  (∃ a b #l. (Eq( a, b ) @ #l)) ∧
+  (∀ #j. (Send( Y, M ) @ #j) ⇒ ¬(#j < #i))"
+*/
+simplify
+solve( !Pk( $A, pk(~key) ) ▶₁ #i )
+  case Setup
+  solve( St_Sender( $A, ~m ) ▶₂ #i )
+    case Sender_messages_signs
+    by contradiction /* from formulas */
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code4-E.spthy
+
+  processing time: 0.26s
+  
+  existential_unforgeability (all-traces): verified (4 steps)
+  messages_authentication (all-traces): verified (4 steps)
+  sign_verify (all-traces): verified (4 steps)
+
+==============================================================================

@@ -1,0 +1,158 @@
+theory OWCPA_asymmetric_encryption_TAMF01 begin
+
+// Function signature and definition of the equational theory E
+
+functions: adec/2, aenc/2, fst/1, pair/2, pk/1, snd/1
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+rule (modulo E) Setup:
+   [ Fr( ~key ) ]
+  --[ OnlyOnce( ), Setup( ~key ) ]->
+   [ !Sk( $A, ~key ), !Pk( $A, pk(~key) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Get_pk:
+   [ !Pk( S, publickey ) ] --> [ Out( publickey ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) attackerkey:
+   [ !Sk( $B, key ) ] --[ Oracle( $B ) ]-> [ Out( key ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Attacker_make_message:
+   [ Fr( m_ ) ] --> [ Out( <$B, m_> ), St_Oracle( m_ ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Sender_encrypt:
+   [ Fr( ~m ), !Pk( $A, ~key ) ]
+  --[
+  Send( $A, aenc(<$A, ~m>, ~key) ), Secret( ~m ), Sender( $A ),
+  Oracle( $B ), Role( 'Sender' ), Sender_send_plain( ~m )
+  ]->
+   [ Out( aenc(<$A, ~m>, ~key) ), St_ReceiveKey( ~m, ~key ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Encrypt_Attacker:
+   [ !Pk( $A, ~key ), In( <$B, m_> ), St_Oracle( m_ ) ]
+  --[
+  Send( $B, aenc(<$B, m_>, ~key) ), Secret( m_ ), Oracle( $B ),
+  Sender( $A ), Role( 'Oracle' ), Attacker_send_plain( m_ )
+  ]->
+   [ Out( aenc(<$B, m_>, ~key) ), St_ReceiveKey_Oracle_plain( m_, ~key ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Ow_Secrecy:
+   [
+   St_ReceiveKey_Oracle_plain( m_, key_ ), In( aenc(<$B, m_>, key_) ),
+   St_ReceiveKey( ~m, key ), In( aenc(<$A, ~m>, key) )
+   ]
+  --[ Notequalvalue( <~m, m_> ), Secretmessage( ~m ) ]->
+   [ Out( m_ ) ]
+
+  /* has exactly the trivial AC variant */
+
+restriction OnlyOnce:
+  "∀ #i #j. ((OnlyOnce( ) @ #i) ∧ (OnlyOnce( ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+lemma ow_value_notequal:
+  all-traces
+  "∀ #i #j x.
+    ((Notequalvalue( x ) @ #i) ∧ (Notequalvalue( x ) @ #j)) ⇒ (#i = #j)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ #i #j x.
+  (Notequalvalue( x ) @ #i) ∧ (Notequalvalue( x ) @ #j) ∧ ¬(#i = #j)"
+*/
+simplify
+solve( (#i < #j)  ∥ (#j < #i) )
+  case case_1
+  by solve( St_ReceiveKey_Oracle_plain( m_, key_ ) ▶₀ #i )
+next
+  case case_2
+  by solve( St_ReceiveKey_Oracle_plain( m_, key_ ) ▶₀ #i )
+qed
+
+lemma secret_sender_message:
+  all-traces
+  "∀ n #i.
+    ((Secret( n ) @ #i) ∧ (Role( 'Sender' ) @ #i)) ⇒
+    ((¬(∃ #j. K( n ) @ #j)) ∨
+     (∃ B #j. (Oracle( B ) @ #j) ∧ (Sender( B ) @ #i)))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ n #i.
+  (Secret( n ) @ #i) ∧ (Role( 'Sender' ) @ #i)
+ ∧
+  (∃ #j. (K( n ) @ #j)) ∧
+  (∀ B #j. (Oracle( B ) @ #j) ∧ (Sender( B ) @ #i) ⇒ ⊥)"
+*/
+simplify
+solve( Secret( n ) @ #i )
+  case Encrypt_Attacker
+  by solve( !Pk( $A, ~key ) ▶₀ #i )
+next
+  case Sender_encrypt
+  by solve( !Pk( $A, ~key ) ▶₁ #i )
+qed
+
+lemma ow_m_secret:
+  all-traces "∀ m #i. (Secretmessage( m ) @ #i) ⇒ (¬(∃ #j. K( m ) @ #j))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i. (Secretmessage( m ) @ #i) ∧ ∃ #j. (K( m ) @ #j)"
+*/
+simplify
+by solve( St_ReceiveKey_Oracle_plain( m_, key_ ) ▶₀ #i )
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code4-B.spthy
+
+  processing time: 0.23s
+  
+  ow_value_notequal (all-traces): verified (4 steps)
+  secret_sender_message (all-traces): verified (4 steps)
+  ow_m_secret (all-traces): verified (2 steps)
+
+==============================================================================

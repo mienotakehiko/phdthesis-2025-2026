@@ -1,0 +1,157 @@
+theory alice_to_bob begin
+
+// Function signature and definition of the equational theory E
+
+functions: fst/1, pair/2, sdec/2, senc/2, snd/1
+equations:
+    fst(<x.1, x.2>) = x.1,
+    sdec(senc(x.1, x.2), x.2) = x.1,
+    snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+rule (modulo E) Setup:
+   [ Fr( ~k ) ] --[ OnlyOnce( ), Setup( ~k ) ]-> [ !Key( ~k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Alice_send:
+   [ Fr( ~m ), !Key( ~k ) ]
+  --[ Send( $A, ~m, ~k ), Secret_A( ~m ) ]->
+   [ Out( <$A, $B, senc(~m, ~k)> ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Bob_receive:
+   [ In( <$A, $B, c> ), !Key( ~k ) ]
+  --[ Receive( $A, sdec(c, ~k), ~k ), Secret_B( sdec(c, ~k) ) ]->
+   [ ]
+
+  /*
+  rule (modulo AC) Bob_receive:
+     [ In( <$A, $B, c> ), !Key( ~k ) ]
+    --[ Receive( $A, z, ~k ), Secret_B( z ) ]->
+     [ ]
+    variants (modulo AC)
+    1. ~k    = ~k.6
+       c     = c.6
+       z     = sdec(c.6, ~k.6)
+    
+    2. ~k    = ~x.6
+       c     = senc(x.7, ~x.6)
+       z     = x.7
+  */
+
+restriction unique:
+  "∀ #i #j. ((OnlyOnce( ) @ #i) ∧ (OnlyOnce( ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+lemma message_secret_alice:
+  all-traces "∀ m #i #j. ((Secret_A( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret_A( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+solve( !Key( ~k ) ▶₁ #i )
+  case Setup
+  solve( !KU( ~m ) @ #vk )
+    case Alice_send
+    by solve( !KU( ~k ) @ #vk.1 )
+  qed
+qed
+
+lemma message_secret_bob:
+  all-traces "∀ m #i #j. ((Secret_B( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret_B( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+solve( !Key( ~k ) ▶₁ #i )
+  case Setup
+  solve( splitEqs(0) )
+    case split_case_1
+    solve( !KU( sdec(c, ~k) ) @ #vk.5 )
+      case c_sdec
+      by solve( !KU( ~k ) @ #vk.6 )
+    qed
+  next
+    case split_case_2
+    solve( !KU( senc(m, ~k) ) @ #vk.4 )
+      case Alice_send
+      solve( !KU( ~m ) @ #vk.5 )
+        case Alice_send
+        by solve( !KU( ~k ) @ #vk.6 )
+      qed
+    next
+      case c_senc
+      by solve( !KU( ~k ) @ #vk.6 )
+    qed
+  qed
+qed
+
+lemma injective_message_agreement:
+  all-traces
+  "∀ alice m k #i.
+    (Receive( alice, m, k ) @ #i) ⇒
+    (∃ #j.
+      ((Send( alice, m, k ) @ #j) ∧ (#j < #i)) ∧
+      (¬(∃ #p. (Receive( alice, m, k ) @ #p) ∧ (¬(#i = #p)))))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ alice m k #i.
+  (Receive( alice, m, k ) @ #i)
+ ∧
+  ∀ #j.
+   (Send( alice, m, k ) @ #j)
+  ⇒
+   ((¬(#j < #i)) ∨ (∃ #p. (Receive( alice, m, k ) @ #p) ∧ ¬(#i = #p)))"
+*/
+simplify
+solve( !Key( ~k ) ▶₁ #i )
+  case Setup
+  solve( splitEqs(0) )
+    case split_case_1
+    SOLVED // trace found
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code4-A.spthy
+
+  processing time: 0.17s
+  
+  message_secret_alice (all-traces): verified (4 steps)
+  message_secret_bob (all-traces): verified (9 steps)
+  injective_message_agreement (all-traces): falsified - found trace (4 steps)
+
+==============================================================================
