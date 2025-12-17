@@ -1,7 +1,0 @@
-  (* Code.5-A: ProVerif - Observational equivalence model *)
-free c: channel.
-fun h(bitstring): bitstring.
-
-process
-  new nonce: bitstring; new m: bitstring;
-  out(c, (m, choice[nonce, h(m)]))
