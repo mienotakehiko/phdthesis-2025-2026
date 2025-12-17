@@ -7,6 +7,9 @@
  Your understanding and cooperation are appreciated.<br>
 
 
+## Section 2: Issues in Cryptographic Protocol Design and Development and the Proposal of an “Integrated Verification Workflow”
+  * Code and Logs executed in ProVerif and Tamarin Prover<br>
+
 ## Section 3: Formalization and Verification of Iterative Structures and Data Structures in ProVerif
   * Code and Logs executed in ProVerif<br>
     Optional detailed versions of Logs
@@ -37,19 +40,21 @@ Execution confirmed in the following versions
 無断転載には法的措置を取る可能性があります。<br>
 ご理解とご協力をお願いします。<br>
 
+## Section2: 暗号プロトコル設計・開発における課題と「統合的検証ワークフロー」の提案
+* ProVerifとTamarin Prover実行したCodeとLogを掲載<br>
 
 ## Section 3: ProVerif における反復構造およびデータ構造の形式化手法と検証
 * ProVerifで実行したCodeとLogを掲載<br>
    Logはオプションのdetail版も掲載<br>
 
-## Section 4: Tamarin Prover における高度な攻撃モデル検証フレームワークの形式化手法と検証
+## Section 4: 定理証明器Tamarin Prover を用いた攻撃者モデルフレームワーク(TAMF) の構築
 * Tamarin Proverで実行したCodeとLogを掲載<br>
-  (但し、Interative Modeはブラウザの環境に依存するため、掲載しない)<br>
+  (但し、Interative Modeはブラウザの環境に依存するため、掲載しない。)<br>
 
-## Section 5: ProVerif とTamarin Prover の融合的技術の提案
+## Section 5: ProVerif とTamarin Prover の融合的技術
 * ProVerifで実行したCodeとLogを掲載<br>
 * Tamarin Proverで実行したCodeとLogを掲載<br>
-  (但し、Interative Modeはブラウザの環境に依存するため、掲載しない)<br>
+  (但し、Interative Modeはブラウザの環境に依存するため、掲載しない。)<br>
 
 ### (補足)
 下記 versionにて実行確認済<br>
