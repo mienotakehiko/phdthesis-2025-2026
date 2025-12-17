@@ -1,0 +1,18 @@
+//  (* Code.2-B: Verification of secrecy by Tamarin Prover -Symmetric key encryption scheme-*)
+theory symmetricencryption
+begin
+builtins: symmetric-encryption
+
+rule Setup:
+ [Fr(~k), Fr(~m)] --[ ]-> [Com($S, <~k, ~m>), Com($R, ~k)]
+
+rule Sender:
+ [Com($S, <~k,~m>) ] --[Send($S, ~m)]-> [Out(senc(~m, ~k))]
+
+rule Receiver:
+ [Com($R, ~k), In(senc(m, ~k))] --[Receive($R, m), Secret(m)]-> [ ]
+
+lemma secret:
+ "All m #i #j. Secret(m) @i & K(m) @j ==> F"
+
+end

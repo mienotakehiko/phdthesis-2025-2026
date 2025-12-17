@@ -1,0 +1,14 @@
+(* Code.2-A: Verification of secrecy by ProVerif -Symmetric key encryption scheme-*)
+free c:channel.
+free m:bitstring [private].
+
+  fun enc(bitstring, bitstring): bitstring.
+  fun dec(bitstring, bitstring): bitstring.
+  equation forall x: bitstring, s: bitstring;
+  dec(enc(x,s),s) = x.
+
+  query attacker(m).
+
+  process
+   new tempkey:bitstring;
+   out (c,enc(m,tempkey))

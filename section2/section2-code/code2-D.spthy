@@ -1,0 +1,27 @@
+//  (* Code.2-D: Verification of secrecy by Tamarin Prover -Asymmetric encryption scheme-*)
+theory asymmetricencryption
+begin
+builtins: asymmetric-encryption, signing
+
+rule Setup_pk:
+ [Fr(~ltk), Fr(~m)] --[Setup($S, <~ltk, ~m>)]-> [!Ltk($S, <~ltk, ~m>), !Pk($S, pk(~ltk))]
+　
+rule Get_pk:
+ [!Pk($S, pubkey)] -->[Out(pubkey)]
+
+rule Reveal_ltk:
+ [!Ltk($R, ~ltk)] --[Reveal($R)]-> [Out(~ltk)]
+
+rule Sender:
+ [ !Ltk($S, <~ltk, ~m>) ] --[Send($S, ~m)]-> [ Out(aenc(~m, ~ltk))]
+
+rule Receiver:
+ let
+  m = adec(aenc(m, pk(~ltk)), ~ltk)
+  in
+  [Fr(~ltk), In(aenc(m, pk(~ltk))), !Pk($S, pk(~ltk))] --[Receive($R, m , ~ltk, aenc(m, pk(~ltk))), Secret(m)]-> [ ]
+
+lemma secret:
+ "All m #i #j. Secret(m) @i & K(m) @j ==> F"
+
+end

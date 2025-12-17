@@ -1,0 +1,86 @@
+theory symmetricencryption begin
+
+// Function signature and definition of the equational theory E
+
+functions: fst/1, pair/2, sdec/2, senc/2, snd/1
+equations:
+    fst(<x.1, x.2>) = x.1,
+    sdec(senc(x.1, x.2), x.2) = x.1,
+    snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+rule (modulo E) Setup:
+   [ Fr( ~k ), Fr( ~m ) ] --> [ Com( $S, <~k, ~m> ), Com( $R, ~k ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Sender:
+   [ Com( $S, <~k, ~m> ) ] --[ Send( $S, ~m ) ]-> [ Out( senc(~m, ~k) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Receiver:
+   [ Com( $R, ~k ), In( senc(m, ~k) ) ]
+  --[ Receive( $R, m ), Secret( m ) ]->
+   [ ]
+
+  /* has exactly the trivial AC variant */
+
+lemma secret:
+  all-traces "∀ m #i #j. ((Secret( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+solve( Com( $R, ~k ) ▶₀ #i )
+  case Setup
+  solve( !KU( senc(m, ~k) ) @ #vk )
+    case Sender
+    solve( !KU( ~m ) @ #vk.1 )
+      case Sender
+      by solve( !KU( ~k ) @ #vk.2 )
+    qed
+  next
+    case c_senc
+    by solve( !KU( ~k ) @ #vk.2 )
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code2-B.spthy
+
+  processing time: 0.13s
+  
+  secret (all-traces): verified (6 steps)
+
+==============================================================================

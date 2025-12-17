@@ -1,0 +1,113 @@
+theory asymmetricencryption begin
+
+// Function signature and definition of the equational theory E
+
+functions: adec/2, aenc/2, fst/1, pair/2, pk/1, sign/2, snd/1, true/0,
+           verify/3
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    snd(<x.1, x.2>) = x.2,
+    verify(sign(x.1, x.2), x.1, pk(x.2)) = true
+
+
+
+
+
+
+
+
+
+rule (modulo E) Setup_pk:
+   [ Fr( ~ltk ), Fr( ~m ) ]
+  --[ Setup( $S, <~ltk, ~m> ) ]->
+   [ !Ltk( $S, <~ltk, ~m> ), !Pk( $S, pk(~ltk) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Get_pk:
+   [ !Pk( $S, pubkey ) ] --> [ Out( pubkey ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Reveal_ltk:
+   [ !Ltk( $R, ~ltk ) ] --[ Reveal( $R ) ]-> [ Out( ~ltk ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Sender:
+   [ !Ltk( $S, <~ltk, ~m> ) ]
+  --[ Send( $S, ~m ) ]->
+   [ Out( aenc(~m, ~ltk) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Receiver:
+   [
+   Fr( ~ltk ), In( aenc(adec(aenc(m, pk(~ltk)), ~ltk), pk(~ltk)) ),
+   !Pk( $S, pk(~ltk) )
+   ]
+  --[
+  Receive( $R, adec(aenc(m, pk(~ltk)), ~ltk), ~ltk,
+           aenc(adec(aenc(m, pk(~ltk)), ~ltk), pk(~ltk))
+  ),
+  Secret( adec(aenc(m, pk(~ltk)), ~ltk) )
+  ]->
+   [ ]
+
+  /*
+  rule (modulo AC) Receiver:
+     [ Fr( ~ltk ), In( aenc(z, pk(~ltk)) ), !Pk( $S, pk(~ltk) ) ]
+    --[ Receive( $R, z, ~ltk, aenc(z, pk(~ltk)) ), Secret( z ) ]->
+     [ ]
+  */
+
+lemma secret:
+  all-traces "∀ m #i #j. ((Secret( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+by contradiction /* cyclic */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code2-D.spthy
+
+  processing time: 0.15s
+  
+  secret (all-traces): verified (2 steps)
+
+==============================================================================

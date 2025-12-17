@@ -1,0 +1,83 @@
+Linear part: No equation.
+Convergent part:
+decrypt(encrypt(x,pk(y)),y) = x
+Completing equations...
+Completed equations:
+decrypt(encrypt(x,pk(y)),y) = x
+Process 0 (that is, the initial process):
+(
+    {1}new wsk: skey;
+    {2}let pkk: pkey = pk(wsk) in
+    {3}out(c, pkk);
+    {4}in(c, rc: bitstring);
+    {5}let decm: bitstring = decrypt(rc,wsk) in
+    0
+) | (
+    {6}in(c, pkx: pkey);
+    {7}let ctxt: bitstring = encrypt(m,pkx) in
+    {8}out(c, ctxt)
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}new wsk: skey;
+    {2}let pkk: pkey = pk(wsk) in
+    {3}out(c, pkk);
+    {4}in(c, rc: bitstring)
+) | (
+    {6}in(c, pkx: pkey);
+    {7}let ctxt: bitstring = encrypt(m,pkx) in
+    {8}out(c, ctxt)
+)
+
+-- Query not attacker(m[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker(m[])
+goal reachable: attacker(m[])
+
+Derivation:
+
+1. The attacker has some term y.
+attacker(y).
+
+2. By 1, the attacker may know y.
+Using the function pk the attacker may obtain pk(y).
+attacker(pk(y)).
+
+3. The message pk(y) that the attacker may have by 2 may be received at input {6}.
+So the message encrypt(m[],pk(y)) may be sent to the attacker at output {8}.
+attacker(encrypt(m[],pk(y))).
+
+4. By 3, the attacker may know encrypt(m[],pk(y)).
+By 1, the attacker may know y.
+Using the function decrypt the attacker may obtain m[].
+attacker(m[]).
+
+5. By 4, attacker(m[]).
+The goal is reached, represented in the following fact:
+attacker(m[]).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new wsk: skey creating wsk_1 at {1}
+
+out(c, ~M) with ~M = pk(wsk_1) at {3}
+
+in(c, pk(a)) at {6}
+
+out(c, ~M_1) with ~M_1 = encrypt(m,pk(a)) at {8}
+
+The attacker has the message decrypt(~M_1,a) = m.
+A trace has been found.
+RESULT not attacker(m[]) is false.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker(m[]) is false.
+
+--------------------------------------------------------------
+

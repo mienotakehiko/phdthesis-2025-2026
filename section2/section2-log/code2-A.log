@@ -1,0 +1,23 @@
+Linear part: No equation.
+Convergent part:
+dec(enc(x,s),s) = x
+Completing equations...
+Completed equations:
+dec(enc(x,s),s) = x
+Process 0 (that is, the initial process):
+{1}new tempkey: bitstring;
+{2}out(c, enc(m,tempkey))
+
+-- Query not attacker(m[]) in process 0.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker(m[])
+RESULT not attacker(m[]) is true.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker(m[]) is true.
+
+--------------------------------------------------------------
+
