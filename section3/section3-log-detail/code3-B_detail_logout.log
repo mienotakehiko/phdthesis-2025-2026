@@ -1,0 +1,1691 @@
+Process 0 (that is, the initial process):
+{1}let a1: nat = 3 in
+(
+    {2}!
+    {3}out(u1, a1)
+) | (
+    {4}!
+    {5}let s: bitstring = seed in
+    {6}in(u1, x2: nat);
+    {7}let x3: nat = x2 - 1 in
+    {8}if (x3 ≠ 0) then
+    (
+        {9}out(u1, x3);
+        {10}in(u2, (x4: nat,sk: bitstring));
+        {11}if (x4 = x3) then
+        {12}let otp3: bitstring = hash(sk) in
+        {13}out(u2, (x3,otp3));
+        {14}if (otp3 = hash(hash(hash(seed)))) then
+        {15}event COL
+    )
+    else
+        {16}out(u2, (x2,hash(seed)))
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {2}!
+    {1}let a1: nat = 3 in
+    {3}out(u1, a1)
+) | (
+    {4}!
+    {6}in(u1, x2: nat);
+    {7}let x3: nat = x2 - 1 in
+    {8}if (x3 ≠ 0) then
+    (
+        {9}out(u1, x3);
+        {10}in(u2, (x4: nat,sk: bitstring));
+        {11}if (x4 = x3) then
+        {12}let otp3: bitstring = hash(sk) in
+        {13}out(u2, (x3,otp3));
+        {14}if (otp3 = hash(hash(hash(seed)))) then
+        {15}event COL
+    )
+    else
+        {16}out(u2, (x2,hash(seed)))
+)
+
+-- Query not event(COL) in process 1.
+Translating the process into Horn clauses...
+Completing...
+select mess(u2[],(2,sk_1))/-5000
+select mess(u2[],(1,sk_1))/-5000
+Starting query not event(COL)
+goal reachable: event(COL)
+
+Derivation:
+
+1. The message 3 may be sent on channel u1[] at output {3}.
+mess(u1[],3).
+
+2. The message 3 that may be sent on channel u1[] by 1 may be received at input {6}.
+We have 2 ≠ 0.
+So the message 2 may be sent on channel u1[] at output {9}.
+mess(u1[],2).
+
+3. The message 3 may be sent on channel u1[] at output {3}.
+mess(u1[],3).
+
+4. The message 3 that may be sent on channel u1[] by 3 may be received at input {6}.
+We have 2 ≠ 0.
+So the message 2 may be sent on channel u1[] at output {9}.
+mess(u1[],2).
+
+5. The message 3 may be sent on channel u1[] at output {3}.
+mess(u1[],3).
+
+6. The message 3 that may be sent on channel u1[] by 5 may be received at input {6}.
+We have 2 ≠ 0.
+So the message 2 may be sent on channel u1[] at output {9}.
+mess(u1[],2).
+
+7. The message 2 that may be sent on channel u1[] by 6 may be received at input {6}.
+We have 1 ≠ 0.
+So the message 1 may be sent on channel u1[] at output {9}.
+mess(u1[],1).
+
+8. The message 1 that may be sent on channel u1[] by 7 may be received at input {6}.
+So the message (1,hash(seed[])) may be sent on channel u2[] at output {16}.
+mess(u2[],(1,hash(seed[]))).
+
+9. The message 2 that may be sent on channel u1[] by 4 may be received at input {6}.
+The message (1,hash(seed[])) that may be sent on channel u2[] by 8 may be received at input {10}.
+We have 1 ≠ 0.
+So the message (1,hash(hash(seed[]))) may be sent on channel u2[] at output {13}.
+mess(u2[],(1,hash(hash(seed[])))).
+
+10. The message 2 that may be sent on channel u1[] by 2 may be received at input {6}.
+The message (1,hash(hash(seed[]))) that may be sent on channel u2[] by 9 may be received at input {10}.
+We have 1 ≠ 0.
+So event COL may be executed at {15}.
+event(COL).
+
+11. By 10, event(COL).
+The goal is reached, represented in the following fact:
+event(COL).
+
+
+Initial state
+
+New processes:
+    (
+        !
+        let a1: nat = 3 in
+        out(u1, a1)
+    ) | (
+        !
+        in(u1, x2: nat);
+        let x3: nat = x2 - 1 in
+        if (x3 ≠ 0) then
+        (
+            out(u1, x3);
+            in(u2, (x4: nat,sk: bitstring));
+            if (x4 = x3) then
+            let otp3: bitstring = hash(sk) in
+            out(u2, (x3,otp3));
+            if (otp3 = hash(hash(hash(seed)))) then
+            event COL
+        )
+        else
+            out(u2, (x2,hash(seed)))
+    )
+
+--------------------------------------------------------------
+1st process: Reduction |
+
+2nd process: Reduction ! 7 copy(ies)
+
+8th process: Beginning of process SKEY
+
+7th process: Beginning of process SKEY
+
+6th process: Beginning of process SKEY
+
+5th process: Beginning of process SKEY
+
+4th process: Beginning of process SKEY
+
+3rd process: Beginning of process SKEY
+
+2nd process: Beginning of process SKEY
+
+1st process: Reduction ! 3 copy(ies)
+
+3rd process: let a1: nat = 3 succeeds
+
+2nd process: let a1: nat = 3 succeeds
+
+1st process: let a1: nat = 3 succeeds
+
+New processes:
+(
+    out(u1, 3)
+) | (
+    out(u1, 3)
+) | (
+    out(u1, 3)
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+1st process: out(u1, 3) reduces with 4th process: in(u1, x2: nat)
+
+New processes:
+(
+    0
+) | (
+    out(u1, 3)
+) | (
+    out(u1, 3)
+) | (
+    let x3: nat = 3 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (3,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+1st process: Reduction 0
+
+3rd process: let x3: nat = 2 succeeds
+
+3rd process: if (2 ≠ 0) succeeds
+
+New processes:
+(
+    out(u1, 3)
+) | (
+    out(u1, 3)
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+3rd process: out(u1, 2) reduces with 4th process: in(u1, x2: nat)
+
+New processes:
+(
+    out(u1, 3)
+) | (
+    out(u1, 3)
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    let x3: nat = 2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+4th process: let x3: nat = 1 succeeds
+
+4th process: if (1 ≠ 0) succeeds
+
+New processes:
+(
+    out(u1, 3)
+) | (
+    out(u1, 3)
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 1);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+4th process: out(u1, 1) reduces with 5th process: in(u1, x2: nat)
+
+New processes:
+(
+    out(u1, 3)
+) | (
+    out(u1, 3)
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    let x3: nat = 1 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (1,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+5th process: let x3: nat = 0 succeeds
+
+5th process: if (0 ≠ 0): else branch taken
+
+New processes:
+(
+    out(u1, 3)
+) | (
+    out(u1, 3)
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+1st process: out(u1, 3) reduces with 6th process: in(u1, x2: nat)
+
+New processes:
+(
+    0
+) | (
+    out(u1, 3)
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+) | (
+    let x3: nat = 3 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (3,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+1st process: Reduction 0
+
+5th process: let x3: nat = 2 succeeds
+
+5th process: if (2 ≠ 0) succeeds
+
+New processes:
+(
+    out(u1, 3)
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+5th process: out(u1, 2) reduces with 6th process: in(u1, x2: nat)
+
+New processes:
+(
+    out(u1, 3)
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    let x3: nat = 2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+6th process: let x3: nat = 1 succeeds
+
+6th process: if (1 ≠ 0) succeeds
+
+New processes:
+(
+    out(u1, 3)
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 1);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+1st process: out(u1, 3) reduces with 7th process: in(u1, x2: nat)
+
+New processes:
+(
+    0
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 1);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    let x3: nat = 3 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (3,hash(seed)))
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+1st process: Reduction 0
+
+6th process: let x3: nat = 2 succeeds
+
+6th process: if (2 ≠ 0) succeeds
+
+New processes:
+(
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 1);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u1, x2: nat);
+    let x3: nat = x2 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (x2,hash(seed)))
+)
+
+--------------------------------------------------------------
+5th process: out(u1, 1) reduces with 7th process: in(u1, x2: nat)
+
+New processes:
+(
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    let x3: nat = 1 - 1 in
+    if (x3 ≠ 0) then
+    (
+        out(u1, x3);
+        in(u2, (x4: nat,sk: bitstring));
+        if (x4 = x3) then
+        let otp3: bitstring = hash(sk) in
+        out(u2, (x3,otp3));
+        if (otp3 = hash(hash(hash(seed)))) then
+        event COL
+    )
+    else
+        out(u2, (1,hash(seed)))
+)
+
+--------------------------------------------------------------
+7th process: let x3: nat = 0 succeeds
+
+7th process: if (0 ≠ 0): else branch taken
+
+New processes:
+(
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+)
+
+--------------------------------------------------------------
+3rd process: out(u2, (1,hash(seed))) reduces with 5th process: in(u2, (x4: nat,sk: bitstring))
+
+New processes:
+(
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    0
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    if (1 = 1) then
+    let otp3: bitstring = hash(hash(seed)) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+)
+
+--------------------------------------------------------------
+3rd process: Reduction 0
+
+4th process: if (1 = 1) succeeds
+
+4th process: let otp3: bitstring = hash(hash(seed)) succeeds
+
+New processes:
+(
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 1) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(hash(seed))));
+    if (hash(hash(seed)) = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+)
+
+--------------------------------------------------------------
+4th process: out(u2, (1,hash(hash(seed)))) reduces with 2nd process: in(u2, (x4: nat,sk: bitstring))
+
+New processes:
+(
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    if (1 = 1) then
+    let otp3: bitstring = hash(hash(hash(seed))) in
+    out(u2, (1,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    if (hash(hash(seed)) = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+)
+
+--------------------------------------------------------------
+4th process: if (hash(hash(seed)) = hash(hash(hash(seed)))): else branch taken
+
+4th process: Reduction 0
+
+2nd process: if (1 = 1) succeeds
+
+2nd process: let otp3: bitstring = hash(hash(hash(seed))) succeeds
+
+New processes:
+(
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(hash(hash(seed)))));
+    if (hash(hash(hash(seed))) = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+)
+
+--------------------------------------------------------------
+2nd process: out(u2, (1,hash(hash(hash(seed))))) reduces with 1st process: in(u2, (x4: nat,sk: bitstring))
+
+New processes:
+(
+    if (1 = 2) then
+    let otp3: bitstring = hash(hash(hash(hash(seed)))) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    if (hash(hash(hash(seed))) = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+)
+
+--------------------------------------------------------------
+2nd process: if (hash(hash(hash(seed))) = hash(hash(hash(seed)))) succeeds
+
+2nd process: event COL executed; it is a goal
+
+New processes:
+(
+    if (1 = 2) then
+    let otp3: bitstring = hash(hash(hash(hash(seed)))) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    0
+) | (
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u1, 2);
+    in(u2, (x4: nat,sk: bitstring));
+    if (x4 = 2) then
+    let otp3: bitstring = hash(sk) in
+    out(u2, (2,otp3));
+    if (otp3 = hash(hash(hash(seed)))) then
+    event COL
+) | (
+    out(u2, (1,hash(seed)))
+)
+
+--------------------------------------------------------------
+The event COL is executed at {15} in copy a.
+A trace has been found.
+RESULT not event(COL) is false.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not event(COL) is false.
+
+--------------------------------------------------------------
+

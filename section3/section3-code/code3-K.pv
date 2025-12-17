@@ -1,0 +1,137 @@
+(* Code.3-K: Formalization of MD-strengthening *)
+free c:channel.
+free s:channel[private].
+free t:channel[private].
+free u:channel[private].
+const iv:bitstring.
+
+fun con(bitstring,bitstring):bitstring.
+fun divhead(bitstring):bitstring.
+fun divrest(bitstring):bitstring.
+equation forall mt:bitstring;
+  con(divhead(mt),divrest(mt))=mt.
+
+(* Compress function *)
+fun comp(bitstring,bitstring):bitstring.
+
+fun length(bitstring):bitstring.
+
+table MD_h(bitstring,bitstring).
+table MD_h_len(bitstring,bitstring).
+table MD_h_pad(bitstring,bitstring).
+table MD_h_check(bitstring).
+
+(* Padding *)
+type oct.
+const zero:oct.
+
+fun b2o(bitstring):oct.
+fun o2b(oct):bitstring.
+equation forall xb:bitstring;o2b(b2o(xb))=xb.
+equation forall xo:oct;b2o(o2b(xo))=xo.
+
+fun Ocon(oct,oct):oct.
+fun Odivhead(oct):oct.
+fun Odivrest(oct):oct.
+equation forall mt:oct;
+  Ocon(Odivhead(mt),Odivrest(mt))=mt.
+equation forall lmt:oct,rmt:oct;
+  Odivhead(Ocon(lmt,rmt))=lmt.
+equation forall lmt:oct,rmt:oct;
+  Odivrest(Ocon(lmt,rmt))=rmt.
+
+fun oct1(bitstring):oct.
+fun oct2i2(bitstring):oct.
+fun oct2i34(bitstring):oct.
+fun oct3i3(bitstring):oct.
+fun oct3i4(bitstring):oct.
+fun oct4(bitstring):oct.
+fun con4octs(oct,oct,oct,oct):bitstring.
+
+equation forall x:oct,y:oct,z:oct,w:oct;
+  con4octs(x,y,z,w)=
+    o2b(Ocon(x,Ocon(y,Ocon(z,w)))).
+
+equation forall x:bitstring;
+  oct1(x)=Odivhead(b2o(x)).
+equation forall x:bitstring;
+  oct2i2(x)=Odivrest(b2o(x)).
+equation forall x:bitstring;
+  oct2i34(x)=Odivhead(Odivrest(b2o(x))).
+equation forall x:bitstring;
+  oct3i3(x)=Odivrest(Odivrest(b2o(x))).
+equation forall x:bitstring;
+  oct3i4(x)=
+    Odivhead(Odivrest(Odivrest(b2o(x)))).
+equation forall x:bitstring;
+  oct4(x)=
+    Odivrest(Odivrest(Odivrest(b2o(x)))).
+
+(* Query *)
+event SUCCESS.
+query event(SUCCESS).
+
+
+  (* MD construction *)
+  let makeMD =
+      in(s,(ha:bitstring,rm:bitstring,bl:nat, mm:bitstring));
+      if(bl <> 1) then 
+      (
+        let newbl = divhead(rm) in
+        let newstream = divrest(rm) in
+        let newha = comp(ha,newbl) in
+        out(s,(newha,newstream,bl-1, mm))
+      ) else (
+        let MDh = comp(ha,rm) in
+        insert MD_h(mm, MDh)
+      ).
+
+  let makeMDlen =
+      in(t,(ha:bitstring,rm:bitstring,bl:nat,len:bitstring, mm:bitstring));
+      if(bl <> 1) then 
+      (
+        let newbl = divhead(rm) in
+        let newstream = divrest(rm) in
+        let newha = comp(ha,newbl) in
+        out(t,(newha,newstream,bl-1,len, mm))
+      ) else (
+        let newha = comp(ha,rm) in
+        let MDh = comp(newha,len) in
+        insert MD_h_len(mm, MDh)
+      ).
+
+  let makeMDpad =
+      in(u,(ha:bitstring,rm:bitstring,bl:nat,len:bitstring, mm:bitstring));
+      if(bl <> 1) then 
+      (
+        let newbl = divhead(rm) in
+        let newstream = divrest(rm) in
+        let newha = comp(ha,newbl) in
+        out(u,(newha,newstream,bl-1,len, mm))
+      ) else (
+        let p = con4octs(b2o(rm),zero,zero,zero) in
+        let newha = comp(ha,p) in
+        let MDh = comp(newha,len) in
+        insert MD_h_pad(mm, MDh)
+      ).
+
+  let LEA_CHECK = 
+      in(c, MDh12':bitstring);
+      get MD_h_check(=MDh12') in
+      event SUCCESS.
+
+(* Main process *)
+  process
+      ( 
+        new m1:bitstring;
+        new m2:bitstring;
+        out(c, (m2,2));
+        out(t,(iv,m1,2,length(m1), m1));
+        get MD_h_len(=m1, MDh1':bitstring) in 
+        out(c,MDh1');
+        out(s,(iv,m1,2, m1));
+        get MD_h(=m1, MDh1:bitstring) in
+        out(u,(MDh1,m2,2,length(con(m1,m2)), con(m1,m2)));
+        get MD_h_pad(=con(m1,m2), MDh12:bitstring) in 
+        insert MD_h_check(MDh12)
+      ) | !makeMD | !makeMDlen | !makeMDpad | !LEA_CHECK

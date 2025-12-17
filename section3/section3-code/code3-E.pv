@@ -1,0 +1,62 @@
+(* Code.3-E: Verifying Preimage Resistance *)
+free c:channel.
+free s:channel[private].
+free t:channel[private].
+free m:bitstring[private].
+const iv:bitstring.
+  
+fun con(bitstring,bitstring):bitstring.
+fun divhead(bitstring):bitstring.
+fun divrest(bitstring):bitstring.
+equation forall mt:bitstring;
+  con(divhead(mt),divrest(mt))=mt.
+
+(* Compress function *)
+fun comp(bitstring,bitstring):bitstring.
+
+(* Query *)
+query attacker(m).
+
+table MD(bitstring,bitstring).
+
+(* MD construction *)
+  let makeMD =
+      in(s,(ha:bitstring,rm:bitstring,bl:nat));
+      if(bl <> 1) then 
+      (
+        let newbl = divhead(rm) in
+        let newstream = divrest(rm) in
+        let newha = comp(ha,newbl) in
+        out(s,(newha,newstream,bl-1))
+      ) else (
+        let MDh = comp(ha,rm) in
+        out(c,MDh)
+      ).
+
+(* MD construction for adversary *)
+  let makeMDadv(mmm:bitstring) =
+      in(t,(ha:bitstring,rm:bitstring,bl:nat,mm:bitstring));
+      if mm = mmm then
+      if(bl <> 1) then
+      (
+        let newbl = divhead(rm) in
+        let newstream = divrest(rm) in
+        let newha = comp(ha,newbl) in
+        out(t,(newha,newstream,bl-1,mm))
+      ) else (
+        let MDh = comp(ha,rm) in
+        insert MD(mm,MDh);
+        out(c,MDh)
+      ).
+
+(* Main process *)
+ process
+     ( 
+       out(s,(iv,m,4)) | !makeMD
+     )
+     | 
+     !( 
+        in(c,mm:bitstring);
+        out(t,(iv,mm,4,mm))
+        | !makeMDadv(mm)
+      )

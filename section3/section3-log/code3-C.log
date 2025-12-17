@@ -1,0 +1,105 @@
+Linear part: No equation.
+Convergent part:
+con(divhead(mt),divrest(mt)) = mt
+Completing equations...
+Completed equations:
+con(divhead(mt),divrest(mt)) = mt
+Process 0 (that is, the initial process):
+(
+    {1}out(s, (iv,m,4))
+) | (
+    {2}!
+    {3}in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    {4}if (bl ≠ 1) then
+    (
+        {5}let newbl: bitstring = divhead(rm) in
+        {6}let newstream: bitstring = divrest(rm) in
+        {7}let newha: bitstring = comp(ha,newbl) in
+        {8}out(s, (newha,newstream,bl - 1))
+    )
+    else
+        {9}let MDh: bitstring = comp(ha,rm) in
+        {10}out(c, MDh);
+        {11}event PROOF
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}out(s, (iv,m,4))
+) | (
+    {2}!
+    {3}in(s, (ha: bitstring,rm: bitstring,bl: nat));
+    {4}if (bl ≠ 1) then
+    (
+        {5}let newbl: bitstring = divhead(rm) in
+        {7}let newha: bitstring = comp(ha,newbl) in
+        {6}let newstream: bitstring = divrest(rm) in
+        {8}out(s, (newha,newstream,bl - 1))
+    )
+    else
+        {9}let MDh: bitstring = comp(ha,rm) in
+        {10}out(c, MDh);
+        {11}event PROOF
+)
+
+-- Query not event(PROOF) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not event(PROOF)
+goal reachable: event(PROOF)
+
+Derivation:
+
+1. The message (iv,m[],4) may be sent on channel s[] at output {1}.
+mess(s[],(iv,m[],4)).
+
+2. The message (iv,m[],4) that may be sent on channel s[] by 1 may be received at input {3}.
+We have 3 ≠ 0.
+So the message (comp(iv,divhead(m[])),divrest(m[]),3) may be sent on channel s[] at output {8}.
+mess(s[],(comp(iv,divhead(m[])),divrest(m[]),3)).
+
+3. The message (comp(iv,divhead(m[])),divrest(m[]),3) that may be sent on channel s[] by 2 may be received at input {3}.
+We have 2 ≠ 0.
+So the message (comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divrest(divrest(m[])),2) may be sent on channel s[] at output {8}.
+mess(s[],(comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divrest(divrest(m[])),2)).
+
+4. The message (comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divrest(divrest(m[])),2) that may be sent on channel s[] by 3 may be received at input {3}.
+We have 1 ≠ 0.
+So the message (comp(comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divhead(divrest(divrest(m[])))),divrest(divrest(divrest(m[]))),1) may be sent on channel s[] at output {8}.
+mess(s[],(comp(comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divhead(divrest(divrest(m[])))),divrest(divrest(divrest(m[]))),1)).
+
+5. The message (comp(comp(comp(iv,divhead(m[])),divhead(divrest(m[]))),divhead(divrest(divrest(m[])))),divrest(divrest(divrest(m[]))),1) that may be sent on channel s[] by 4 may be received at input {3}.
+So event PROOF may be executed at {11}.
+event(PROOF).
+
+6. By 5, event(PROOF).
+The goal is reached, represented in the following fact:
+event(PROOF).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+out(s, (iv,m,4)) at {1} received at {3} in copy a
+
+out(s, (comp(iv,divhead(m)),divrest(m),3)) at {8} in copy a received at {3} in copy a_1
+
+out(s, (comp(comp(iv,divhead(m)),divhead(divrest(m))),divrest(divrest(m)),2)) at {8} in copy a_1 received at {3} in copy a_2
+
+out(s, (comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))),divrest(divrest(divrest(m))),1)) at {8} in copy a_2 received at {3} in copy a_3
+
+out(c, ~M) with ~M = comp(comp(comp(comp(iv,divhead(m)),divhead(divrest(m))),divhead(divrest(divrest(m)))),divrest(divrest(divrest(m)))) at {10} in copy a_3
+
+event PROOF at {11} in copy a_3 (goal)
+
+The event PROOF is executed at {11} in copy a_3.
+A trace has been found.
+RESULT not event(PROOF) is false.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not event(PROOF) is false.
+
+--------------------------------------------------------------
+

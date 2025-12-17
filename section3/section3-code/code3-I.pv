@@ -1,0 +1,54 @@
+(* Code.3-I: Length Extension Attack *)
+free c:channel.
+free s:channel[private].
+free t:channel[private].
+const iv:bitstring.
+  
+fun con(bitstring,bitstring):bitstring.
+fun divhead(bitstring):bitstring.
+fun divrest(bitstring):bitstring.
+equation forall mt:bitstring;
+  con(divhead(mt),divrest(mt))=mt.
+
+(* Compress function *)
+fun comp(bitstring,bitstring):bitstring.
+
+table MD_h(bitstring,bitstring).
+table MD_h_check(bitstring).
+
+(* Query *)
+event SUCCESS.
+query event(SUCCESS).
+
+  (* MD construction *)
+  let makeMD =
+      in(s,(ha:bitstring,rm:bitstring,bl:nat, mm:bitstring));
+      if(bl <> 1) then 
+      (
+        let newbl = divhead(rm) in
+        let newstream = divrest(rm) in
+        let newha = comp(ha,newbl) in
+        out(s,(newha,newstream,bl-1, mm))
+      ) else (
+        let MDh = comp(ha,rm) in
+        insert MD_h(mm, MDh)
+      ).
+
+  let LEA_CHECK = 
+      in(c, MDh12':bitstring);
+      get MD_h_check(=MDh12') in
+      event SUCCESS.
+
+(* Main process *)
+  process
+      ( 
+        new m1:bitstring;
+        new m2:bitstring;
+        out(c, (m2,2));
+        out(s,(iv,m1,2, m1));
+        get MD_h(=m1, MDh1:bitstring) in
+        out(c, MDh1);
+        out(s,(MDh1,m2,2, con(m1,m2)));
+        get MD_h(=con(m1,m2), MDh12:bitstring) in 
+        insert MD_h_check(MDh12)
+      ) | !makeMD | !LEA_CHECK

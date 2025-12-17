@@ -1,0 +1,19 @@
+(* Code.3-O: Formalization of the encryption of the channel term *)
+free c:channel.
+free Document1:bitstring [private].
+free Document2:bitstring [private].
+free sk:bitstring [private].
+fun enc(channel, bitstring): bitstring.
+fun dec(bitstring, bitstring): channel.
+equation forall x:channel, s:bitstring; dec(enc(x,s),s)=x.
+
+query attacker(Document1).
+query attacker(Document2).
+
+process
+ (
+  new Ch:channel;
+  out(Ch,Document1);
+  out(Ch,Document2);
+  out(c, enc(Ch,sk))
+ )

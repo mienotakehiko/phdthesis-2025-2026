@@ -1,0 +1,73 @@
+(* Code.3-J: Length Extension Attack Prevention *)
+free c:channel.
+free s:channel[private].
+free t:channel[private].
+const iv:bitstring.
+  
+fun con(bitstring,bitstring):bitstring.
+fun divhead(bitstring):bitstring.
+fun divrest(bitstring):bitstring.
+equation forall mt:bitstring;
+  con(divhead(mt),divrest(mt))=mt.
+
+(* Compress function *)
+fun comp(bitstring,bitstring):bitstring.
+fun length(bitstring):bitstring.
+
+table MD_h(bitstring,bitstring).
+table MD_h_len(bitstring,bitstring).
+table MD_h_check(bitstring).
+
+(* Query *)
+event SUCCESS.
+query event(SUCCESS).
+
+  (* MD construction *)
+  let makeMD =
+      in(s,(ha:bitstring,rm:bitstring,bl:nat, mm:bitstring));
+      if(bl <> 1) then 
+      (
+        let newbl = divhead(rm) in
+        let newstream = divrest(rm) in
+        let newha = comp(ha,newbl) in
+        out(s,(newha,newstream,bl-1, mm))
+      ) else (
+        let MDh = comp(ha,rm) in
+        insert MD_h(mm, MDh)
+      ).
+
+  let makeMDlen =
+      in(t,(ha:bitstring,rm:bitstring,bl:nat,len:bitstring, mm:bitstring));
+      if(bl <> 1) then 
+      (
+        let newbl = divhead(rm) in
+        let newstream = divrest(rm) in
+        let newha = comp(ha,newbl) in
+        out(t,(newha,newstream,bl-1,len, mm))
+      ) else (
+        let newha = comp(ha,rm) in
+        let MDh = comp(newha,len) in
+        insert MD_h_len(mm, MDh)
+      ).
+
+  let LEA_CHECK = 
+      in(c, MDh12':bitstring);
+      get MD_h_check(=MDh12') in
+      event SUCCESS.
+
+(* Main process *)
+  process
+      ( 
+        new m1:bitstring;
+        new m2:bitstring;
+        out(c, (m2,2));
+        out(t,(iv,m1,2,length(m1), m1));
+        get MD_h_len(=m1, MDh1':bitstring) in 
+        out(c, MDh1');
+        out(s,(iv,m1,2, m1));
+        get MD_h(=m1, MDh1:bitstring) in
+        out(t,(MDh1,m2,2,length(con(m1,m2)), con(m1,m2) ));
+        get MD_h_len(=con(m1,m2), MDh12:bitstring) in 
+        insert MD_h_check(MDh12)
+      ) | !makeMD | !makeMDlen | !LEA_CHECK
+

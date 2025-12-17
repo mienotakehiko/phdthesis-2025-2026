@@ -1,0 +1,11 @@
+(* Code.3-G: EXAMPLE of One-wayness not ProVerif *)
+(* Please note that this is not ProVerif code.*)
+
+solve-collisinon() {
+      m = rand_message()
+      return (m, solve-2nd-preimage(m))
+  }
+  solve-2nd-preimage(m) {
+      h = hash(m)
+      return solve-preimage(h)
+  }

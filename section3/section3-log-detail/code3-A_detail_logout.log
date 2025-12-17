@@ -1,0 +1,15 @@
+Process 0 (that is, the initial process):
+(
+    {1}new n: bitstring;
+    {2}out(c, m)
+) | (
+    {3}in(c, r: bitstring)
+)
+
+
+--------------------------------------------------------------
+Verification summary:
+
+No query in the input file.
+--------------------------------------------------------------
+

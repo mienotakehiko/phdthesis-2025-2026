@@ -1,0 +1,91 @@
+Linear part: No equation.
+Convergent part:
+dec(enc(x,s),s) = x
+Completing equations...
+Completed equations:
+dec(enc(x,s),s) = x
+Process 0 (that is, the initial process):
+{1}new Ch: channel;
+{2}out(Ch, Document1);
+{3}out(Ch, Document2);
+{4}out(c, enc(Ch,sk));
+{5}out(c, sk)
+
+-- Query not attacker(Document1[]) in process 0.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker(Document1[])
+goal reachable: attacker(Document1[])
+
+Derivation:
+
+1. The message sk[] may be sent to the attacker at output {5}.
+attacker(sk[]).
+
+2. The message enc(Ch[],sk[]) may be sent to the attacker at output {4}.
+attacker(enc(Ch[],sk[])).
+
+3. By 2, the attacker may know enc(Ch[],sk[]).
+By 1, the attacker may know sk[].
+Using the function dec the attacker may obtain Ch[].
+attacker(Ch[]).
+
+4. The message Document1[] may be sent on channel Ch[] at output {2}.
+mess(Ch[],Document1[]).
+
+5. By 3, the attacker may have the channel Ch[].
+By 4, the message Document1[] may be sent on this channel.
+So the attacker may obtain the message Document1[] by listening on this channel.
+attacker(Document1[]).
+
+6. By 5, attacker(Document1[]).
+The goal is reached, represented in the following fact:
+attacker(Document1[]).
+
+
+Could not find a trace corresponding to this derivation.
+RESULT not attacker(Document1[]) cannot be proved.
+-- Query not attacker(Document2[]) in process 0.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker(Document2[])
+goal reachable: attacker(Document2[])
+
+Derivation:
+
+1. The message sk[] may be sent to the attacker at output {5}.
+attacker(sk[]).
+
+2. The message enc(Ch[],sk[]) may be sent to the attacker at output {4}.
+attacker(enc(Ch[],sk[])).
+
+3. By 2, the attacker may know enc(Ch[],sk[]).
+By 1, the attacker may know sk[].
+Using the function dec the attacker may obtain Ch[].
+attacker(Ch[]).
+
+4. The message Document2[] may be sent on channel Ch[] at output {3}.
+mess(Ch[],Document2[]).
+
+5. By 3, the attacker may have the channel Ch[].
+By 4, the message Document2[] may be sent on this channel.
+So the attacker may obtain the message Document2[] by listening on this channel.
+attacker(Document2[]).
+
+6. By 5, attacker(Document2[]).
+The goal is reached, represented in the following fact:
+attacker(Document2[]).
+
+
+Could not find a trace corresponding to this derivation.
+RESULT not attacker(Document2[]) cannot be proved.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker(Document1[]) cannot be proved.
+
+Query not attacker(Document2[]) cannot be proved.
+
+--------------------------------------------------------------
+

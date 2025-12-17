@@ -1,0 +1,13 @@
+(* Code.3-A: Simple Protocol *)
+free c:channel.
+free m:bitstring[private].
+
+  let Sender =
+      new n:bitstring;
+      out (c,m).
+
+  let Receiver = 
+      in (c, r:bitstring).
+
+  process
+      Sender | Receiver
