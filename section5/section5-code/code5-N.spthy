@@ -1,0 +1,44 @@
+//  (* Code.5-N: Tamarin Prover - MD iterative model *)
+theory makemdtest
+begin
+
+builtins: locations-report
+functions: check/2, null/0, counternow/1, list/2
+
+predicates:
+Report(x,y) <=> not  (y= 'l')
+
+let mblock =
+    (lock state;
+    lookup state as st in
+    let blockwhere = fst(st) in
+    let counter = snd(st) in
+    in(length);
+    let nowblock = check(length, blockwhere) in
+    let x = report(<nowblock, length, counter>) in
+        event MakeBlock(<nowblock, length, blockwhere>);
+        out(<nowblock, x>);
+        insert state, <<nowblock, list(length, blockwhere)>, counternow(counter)>;
+	unlock state)@'l'
+
+let verifymblock =
+    lock state;
+    lookup state as st in
+    let blockwhere = fst(st) in
+    let counter = snd(st) in
+    in(length);
+    in(<nowblock, tail>);
+    if <nowblock, length, counter> = check_rep(tail, 'l') then
+        event MakeBlockCheck(<nowblock, length, blockwhere>);
+        insert state, <<nowblock, list(length, blockwhere)>, counternow(counter)>;
+        unlock state
+    else
+        event Fail()
+
+process:
+    ( !(new state; insert state, <'init', null()>; !mblock) || !(new state; insert state, <'init', null()>; !verifymblock) )
+
+lemma md_block:
+    exists-trace
+    "not(All #i no le nb l. MakeBlockCheck(<no,le,<nb,list(l,'init')>>)@#i ==> (Ex #j. MakeBlock(<no,le,<nb,list(l,'init')>>)@#j & #j<#i))"
+end

@@ -1,0 +1,55 @@
+Linear part: No equation.
+Convergent part:
+decrypt(encrypt(x,pk(y),r),y) = x
+Completing equations...
+Completed equations:
+decrypt(encrypt(x,pk(y),r),y) = x
+Process 0 (that is, the initial process):
+(
+    {1}out(c, pk(secretkey))
+) | (
+    {2}let pk_1: pkey = pk(secretkey) in
+    {3}new r1: bitstring;
+    {4}let c_1: bitstring = encrypt(m,pk_1,r1) in
+    {5}out(c, c_1)
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}out(c, pk(secretkey))
+) | (
+    {3}new r1: bitstring;
+    {2}let pk_1: pkey = pk(secretkey) in
+    {4}let c_1: bitstring = encrypt(m,pk_1,r1) in
+    {5}out(c, c_1)
+)
+
+-- Query not attacker(m[]) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not attacker(m[])
+RESULT not attacker(m[]) is true.
+-- Non-interference m in process 1.
+Warning: using "noninterf" in the presence of equations may yield many
+false attacks. If you observe false attacks, try to code the desired
+property using "choice" instead.
+Translating the process into Horn clauses...
+Completing...
+RESULT Non-interference m is true.
+-- Query not event(decsuccess) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not event(decsuccess)
+RESULT not event(decsuccess) is true.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not attacker(m[]) is true.
+
+Non-interference m is true.
+
+Query not event(decsuccess) is true.
+
+--------------------------------------------------------------
+

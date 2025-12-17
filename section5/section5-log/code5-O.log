@@ -1,0 +1,535 @@
+theory crtest2 begin
+
+// Function signature and definition of the equational theory E
+
+functions: check/2, check_rep/2[destructor], counternow/1, fst/1,
+           get_rep/1[destructor], h/1, list/2, null/0, pair/2,
+           rep/2[private,destructor], report/1, snd/1
+equations:
+    check_rep(rep(x.1, x.2), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    get_rep(rep(x.1, x.2)) = x.1,
+    snd(<x.1, x.2>) = x.2
+
+
+
+heuristic: p
+
+
+
+
+
+predicate: Report( x, y )<=>¬(y = 'l')
+
+restriction Inequality:
+  "∀ x y #i. (Neq( x, y ) @ #i) ⇒ (⊥)"
+  // safety formula
+
+
+
+
+
+
+
+
+
+lemma crtest:
+  all-traces
+  "∀ m1 m2 #k #l.
+    ((Hashreveal1( h(m1) ) @ #k) ∧ (Hashreveal1( h(m2) ) @ #l)) ⇒
+    (((h(m1) = h(m2)) ∧ (#k = #l)) ∧ (#k < #l))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m1 m2 #k #l.
+  (Hashreveal1( h(m1) ) @ #k) ∧ (Hashreveal1( h(m2) ) @ #l)
+ ∧
+  ((¬(h(m1) = h(m2))) ∨ (¬(#k = #l)) ∨ (¬(#k < #l)))"
+*/
+simplify
+solve( (¬(h(m1) = h(m2)))  ∥ (¬(#k = #l))  ∥ (¬(#k < #l)) )
+  case case_1
+  solve( Hashreveal1( h(m1) ) @ #k )
+    case p_1_1212_case_1
+    by contradiction /* from formulas */
+  next
+    case p_1_1212_case_2
+    by contradiction /* from formulas */
+  qed
+next
+  case case_2
+  solve( (#k < #l)  ∥ (#l < #k) )
+    case case_1
+    solve( Hashreveal1( h(m1) ) @ #k )
+      case p_1_1212_case_1
+      by contradiction /* from formulas */
+    next
+      case p_1_1212_case_2
+      by contradiction /* from formulas */
+    qed
+  next
+    case case_2
+    solve( Hashreveal1( h(m1) ) @ #k )
+      case p_1_1212_case_1
+      by contradiction /* from formulas */
+    next
+      case p_1_1212_case_2
+      by contradiction /* from formulas */
+    qed
+  qed
+next
+  case case_3
+  solve( (#k = #l)  ∥ (#l < #k) )
+    case case_1
+    solve( Hashreveal1( h(m1) ) @ #k )
+      case p_1_1212_case_1
+      by contradiction /* from formulas */
+    next
+      case p_1_1212_case_2
+      by contradiction /* from formulas */
+    qed
+  next
+    case case_2
+    solve( Hashreveal1( h(m1) ) @ #k )
+      case p_1_1212_case_1
+      by contradiction /* from formulas */
+    next
+      case p_1_1212_case_2
+      by contradiction /* from formulas */
+    qed
+  qed
+qed
+
+lemma checktest:
+  exists-trace
+  "¬(∀ #i hash.
+      (HashReveal( h(hash) ) @ #i) ⇒
+      (∃ #j. (Hashsend( h(hash) ) @ #j) ∧ (#j < #i)))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ #i hash.
+  (HashReveal( h(hash) ) @ #i)
+ ∧
+  ∀ #j. (Hashsend( h(hash) ) @ #j) ⇒ ¬(#j < #i)"
+*/
+simplify
+solve( State_1211111111111( lock, a, length, st, state ) ▶₀ #i )
+  case lookupstateasst_0_121111111
+  solve( (#vr.2 < #t2)  ∥ (#vr.2 = #t2) )
+    case case_2
+    solve( splitEqs(0) )
+      case split_case_2
+      solve( Insert( ~n.2, <z, z.1> ) @ #t2 )
+        case newstate_0_1211
+        SOLVED // trace found
+      qed
+    qed
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+restriction Restr_ReportRule_1:
+  "∀ x #NOW. (Restr_ReportRule_1( x ) @ #NOW) ⇒ (¬(x = 'l'))"
+  // safety formula
+
+rule (modulo E) ReportRule[color=#ffffff, process="!", issapicrule]:
+   [ In( <x, loc> ) ]
+  --[ Restr_ReportRule_1( loc ) ]->
+   [ Out( rep(x, loc) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Init[color=#ffffff, process="!", issapicrule]:
+   [ ] --[ Init( ) ]-> [ !Semistate_1( ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) newstate_0_11[color=#ffffff, process="new state.1;",
+                              issapicrule]:
+   [ State_11( ), Fr( state.1 ) ]
+  --[ Insert( state.1, <'init', null> ) ]->
+   [ !Semistate_11111( state.1 ) ]
+
+  /*
+  rule (modulo AC) newstate_0_11[color=#ffffff, process="new state.1;",
+                                 issapicrule]:
+     [ State_11( ), Fr( state ) ]
+    --[ Insert( state, <'init', null> ) ]->
+     [ !Semistate_11111( state ) ]
+  */
+
+rule (modulo E) p_1_1111[color=#ffffff, process="!", issapicrule]:
+   [ !Semistate_11111( state.1 ), Fr( lock ) ]
+  --[ Lock_0( '0', lock, state.1 ), Lock( '0', lock, state.1 ) ]->
+   [ State_1111111( lock, state.1 ) ]
+
+  /*
+  rule (modulo AC) p_1_1111[color=#ffffff, process="!", issapicrule]:
+     [ !Semistate_11111( state ), Fr( lock ) ]
+    --[ Lock_0( '0', lock, state ), Lock( '0', lock, state ) ]->
+     [ State_1111111( lock, state ) ]
+  */
+
+rule (modulo E) lookupstateasst_0_1111111[color=#40804d,
+                                          process="lookup state.1 as st.1", issapicrule]:
+   [ State_1111111( lock, state.1 ), In( length.1 ), Fr( a.1 ) ]
+  --[ IsIn( state.1, st.1 ) ]->
+   [
+   State_11111111111( lock, a.1, length.1, st.1, state.1 ),
+   Out( <check(length.1, fst(st.1)), 
+         rep(<check(length.1, fst(st.1)), length.1, snd(st.1)>, 'l')>
+   )
+   ]
+
+  /*
+  rule (modulo AC) lookupstateasst_0_1111111[color=#40804d,
+                                             process="lookup state.1 as st.1", issapicrule]:
+     [ State_1111111( lock, state ), In( length ), Fr( a ) ]
+    --[ IsIn( state, st ) ]->
+     [
+     State_11111111111( lock, a, length, st, state ),
+     Out( <check(length, z), rep(<check(length, z), length, z.1>, 'l')> )
+     ]
+    variants (modulo AC)
+    1. st    = st.10
+       z     = fst(st.10)
+       z.1   = snd(st.10)
+    
+    2. st    = <z.11, z.12>
+       z     = z.11
+       z.1   = z.12
+  */
+
+rule (modulo E) eventHashsendhchecklengthfstst_0_11111111111[color=#40804d,
+                                                             process="event Hashsend( h(check(length.1, fst(st.1))) );",
+                                                             issapicrule]:
+   [ State_11111111111( lock, a.1, length.1, st.1, state.1 ) ]
+  --[ Hashsend( h(check(length.1, fst(st.1))) ) ]->
+   [ State_111111111111( lock, a.1, length.1, st.1, state.1 ) ]
+
+  /*
+  rule (modulo AC) eventHashsendhchecklengthfstst_0_11111111111[color=#40804d,
+                                                                process="event Hashsend( h(check(length.1, fst(st.1))) );",
+                                                                issapicrule]:
+     [ State_11111111111( lock, a, length, st, state ) ]
+    --[ Hashsend( h(check(length, z)) ) ]->
+     [ State_111111111111( lock, a, length, st, state ) ]
+    variants (modulo AC)
+    1. st    = st.9
+       z     = fst(st.9)
+    
+    2. st    = <x.8, x.9>
+       z     = x.8
+  */
+
+rule (modulo E) insertstatechecklengthfststlistlengthfststcounternowsndst_0_111111111111[color=#40804d,
+                                                                                         process="insert state.1,<<check(length.1, fst(st.1)), list(length.1, fst(st.1))>, 
+ counternow(snd(st.1))>;",
+                                                                                         issapicrule]:
+   [ State_111111111111( lock, a.1, length.1, st.1, state.1 ) ]
+  --[
+  Insert( state.1,
+          <<check(length.1, fst(st.1)), list(length.1, fst(st.1))>, 
+           counternow(snd(st.1))>
+  )
+  ]->
+   [ State_1111111111111( lock, a.1, length.1, st.1, state.1 ) ]
+
+  /*
+  rule (modulo AC) insertstatechecklengthfststlistlengthfststcounternowsndst_0_111111111111[color=#40804d,
+                                                                                            process="insert state.1,<<check(length.1, fst(st.1)), list(length.1, fst(st.1))>, 
+ counternow(snd(st.1))>;",
+                                                                                            issapicrule]:
+     [ State_111111111111( lock, a, length, st, state ) ]
+    --[
+    Insert( state, <<check(length, z), list(length, z)>, counternow(z.1)> )
+    ]->
+     [ State_1111111111111( lock, a, length, st, state ) ]
+    variants (modulo AC)
+    1. st    = st.10
+       z     = fst(st.10)
+       z.1   = snd(st.10)
+    
+    2. st    = <x.9, x.10>
+       z     = x.9
+       z.1   = x.10
+  */
+
+rule (modulo E) unlockstate_0_1111111111111[color=#40804d,
+                                            process="unlock state.1;", issapicrule]:
+   [ State_1111111111111( lock, a.1, length.1, st.1, state.1 ) ]
+  --[ Unlock_0( '0', lock, state.1 ), Unlock( '0', lock, state.1 ) ]->
+   [ ]
+
+  /*
+  rule (modulo AC) unlockstate_0_1111111111111[color=#40804d,
+                                               process="unlock state.1;", issapicrule]:
+     [ State_1111111111111( lock, a, length, st, state ) ]
+    --[ Unlock_0( '0', lock, state ), Unlock( '0', lock, state ) ]->
+     [ ]
+  */
+
+rule (modulo E) lookupstateasst_1_1111111[color=#40804d,
+                                          process="lookup state.1 as st.1", issapicrule]:
+   [ State_1111111( lock, state.1 ) ] --[ IsNotSet( state.1 ) ]-> [ ]
+
+  /*
+  rule (modulo AC) lookupstateasst_1_1111111[color=#40804d,
+                                             process="lookup state.1 as st.1", issapicrule]:
+     [ State_1111111( lock, state ) ] --[ IsNotSet( state ) ]-> [ ]
+  */
+
+rule (modulo E) p_1_[color=#ffffff, process="!", issapicrule]:
+   [ !Semistate_1( ) ] --> [ !Semistate_121( ), State_11( ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) newstate_0_1211[color=#ffffff, process="new state.2;",
+                                issapicrule]:
+   [ State_1211( ), Fr( state.2 ) ]
+  --[ Insert( state.2, <'init', null> ) ]->
+   [ !Semistate_1211111( state.2 ) ]
+
+  /*
+  rule (modulo AC) newstate_0_1211[color=#ffffff, process="new state.2;",
+                                   issapicrule]:
+     [ State_1211( ), Fr( state ) ]
+    --[ Insert( state, <'init', null> ) ]->
+     [ !Semistate_1211111( state ) ]
+  */
+
+rule (modulo E) p_1_121111[color=#ffffff, process="!", issapicrule]:
+   [ !Semistate_1211111( state.2 ), Fr( lock.1 ) ]
+  --[ Lock_1( '1', lock.1, state.2 ), Lock( '1', lock.1, state.2 ) ]->
+   [ State_121111111( lock.1, state.2 ) ]
+
+  /*
+  rule (modulo AC) p_1_121111[color=#ffffff, process="!", issapicrule]:
+     [ !Semistate_1211111( state ), Fr( lock ) ]
+    --[ Lock_1( '1', lock, state ), Lock( '1', lock, state ) ]->
+     [ State_121111111( lock, state ) ]
+  */
+
+rule (modulo E) lookupstateasst_0_121111111[color=#408049,
+                                            process="lookup state.2 as st.2", issapicrule]:
+   [ State_121111111( lock.1, state.2 ), In( length.2 ), Fr( a.2 ) ]
+  --[ IsIn( state.2, st.2 ) ]->
+   [
+   State_1211111111111( lock.1, a.2, length.2, st.2, state.2 ),
+   Out( <check(length.2, fst(st.2)), 
+         rep(<check(length.2, fst(st.2)), length.2, snd(st.2)>, 'l')>
+   )
+   ]
+
+  /*
+  rule (modulo AC) lookupstateasst_0_121111111[color=#408049,
+                                               process="lookup state.2 as st.2", issapicrule]:
+     [ State_121111111( lock, state ), In( length ), Fr( a ) ]
+    --[ IsIn( state, st ) ]->
+     [
+     State_1211111111111( lock, a, length, st, state ),
+     Out( <check(length, z), rep(<check(length, z), length, z.1>, 'l')> )
+     ]
+    variants (modulo AC)
+    1. st    = st.11
+       z     = fst(st.11)
+       z.1   = snd(st.11)
+    
+    2. st    = <z.12, z.13>
+       z     = z.12
+       z.1   = z.13
+  */
+
+rule (modulo E) eventHashRevealhchecklengthfstst_0_1211111111111[color=#408049,
+                                                                 process="event HashReveal( h(check(length.2, fst(st.2))) );",
+                                                                 issapicrule]:
+   [ State_1211111111111( lock.1, a.2, length.2, st.2, state.2 ) ]
+  --[ HashReveal( h(check(length.2, fst(st.2))) ) ]->
+   [ State_12111111111111( lock.1, a.2, length.2, st.2, state.2 ) ]
+
+  /*
+  rule (modulo AC) eventHashRevealhchecklengthfstst_0_1211111111111[color=#408049,
+                                                                    process="event HashReveal( h(check(length.2, fst(st.2))) );",
+                                                                    issapicrule]:
+     [ State_1211111111111( lock, a, length, st, state ) ]
+    --[ HashReveal( h(check(length, z)) ) ]->
+     [ State_12111111111111( lock, a, length, st, state ) ]
+    variants (modulo AC)
+    1. st    = st.10
+       z     = fst(st.10)
+    
+    2. st    = <x.9, x.10>
+       z     = x.9
+  */
+
+rule (modulo E) insertstatechecklengthfststlistlengthfststcounternowsndst_0_12111111111111[color=#408049,
+                                                                                           process="insert state.2,<<check(length.2, fst(st.2)), list(length.2, fst(st.2))>, 
+ counternow(snd(st.2))>;",
+                                                                                           issapicrule]:
+   [ State_12111111111111( lock.1, a.2, length.2, st.2, state.2 ) ]
+  --[
+  Insert( state.2,
+          <<check(length.2, fst(st.2)), list(length.2, fst(st.2))>, 
+           counternow(snd(st.2))>
+  )
+  ]->
+   [ State_121111111111111( lock.1, a.2, length.2, st.2, state.2 ) ]
+
+  /*
+  rule (modulo AC) insertstatechecklengthfststlistlengthfststcounternowsndst_0_12111111111111[color=#408049,
+                                                                                              process="insert state.2,<<check(length.2, fst(st.2)), list(length.2, fst(st.2))>, 
+ counternow(snd(st.2))>;",
+                                                                                              issapicrule]:
+     [ State_12111111111111( lock, a, length, st, state ) ]
+    --[
+    Insert( state, <<check(length, z), list(length, z)>, counternow(z.1)> )
+    ]->
+     [ State_121111111111111( lock, a, length, st, state ) ]
+    variants (modulo AC)
+    1. st    = st.11
+       z     = fst(st.11)
+       z.1   = snd(st.11)
+    
+    2. st    = <x.10, x.11>
+       z     = x.10
+       z.1   = x.11
+  */
+
+rule (modulo E) unlockstate_0_121111111111111[color=#408049,
+                                              process="unlock state.2;", issapicrule]:
+   [ State_121111111111111( lock.1, a.2, length.2, st.2, state.2 ) ]
+  --[ Unlock_1( '1', lock.1, state.2 ), Unlock( '1', lock.1, state.2 ) ]->
+   [ ]
+
+  /*
+  rule (modulo AC) unlockstate_0_121111111111111[color=#408049,
+                                                 process="unlock state.2;", issapicrule]:
+     [ State_121111111111111( lock, a, length, st, state ) ]
+    --[ Unlock_1( '1', lock, state ), Unlock( '1', lock, state ) ]->
+     [ ]
+  */
+
+rule (modulo E) lookupstateasst_1_121111111[color=#408049,
+                                            process="lookup state.2 as st.2", issapicrule]:
+   [ State_121111111( lock.1, state.2 ) ] --[ IsNotSet( state.2 ) ]-> [ ]
+
+  /*
+  rule (modulo AC) lookupstateasst_1_121111111[color=#408049,
+                                               process="lookup state.2 as st.2", issapicrule]:
+     [ State_121111111( lock, state ) ] --[ IsNotSet( state ) ]-> [ ]
+  */
+
+rule (modulo E) p_1_12[color=#ffffff, process="!", issapicrule]:
+   [ !Semistate_121( ) ] --> [ !Semistate_12121( ), State_1211( ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) p_1_1212[color=#ffffff, process="!", issapicrule]:
+   [ !Semistate_12121( ), Fr( ~newm1.1 ), Fr( ~newm2.1 ) ]
+  --[
+  Neq( ~newm1.1, ~newm2.1 ), Hashreveal1( h(~newm1.1) ),
+  Hashreveal1( h(~newm2.1) )
+  ]->
+   [ Out( h(~newm1.1) ), Out( h(~newm2.1) ) ]
+
+  /*
+  rule (modulo AC) p_1_1212[color=#ffffff, process="!", issapicrule]:
+     [ !Semistate_12121( ), Fr( ~newm1 ), Fr( ~newm2 ) ]
+    --[
+    Neq( ~newm1, ~newm2 ), Hashreveal1( h(~newm1) ), Hashreveal1( h(~newm2) )
+    ]->
+     [ Out( h(~newm1) ), Out( h(~newm2) ) ]
+  */
+
+restriction set_in:
+  "∀ x y #t3.
+    (IsIn( x, y ) @ #t3) ⇒
+    (∃ #t2.
+      ((Insert( x, y ) @ #t2) ∧ (#t2 < #t3)) ∧
+      (∀ #t1 yp.
+        (Insert( x, yp ) @ #t1) ⇒ (((#t1 < #t2) ∨ (#t1 = #t2)) ∨ (#t3 < #t1))))"
+
+restriction set_notin:
+  "∀ x #t3.
+    (IsNotSet( x ) @ #t3) ⇒ (∀ #t1 y. (Insert( x, y ) @ #t1) ⇒ (#t3 < #t1))"
+  // safety formula
+
+restriction single_session:
+  "∀ #i #j. ((Init( ) @ #i) ∧ (Init( ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+restriction locking_0:
+  "∀ p pp l x lp #t1 #t3.
+    ((Lock_0( p, l, x ) @ #t1) ∧ (Lock( pp, lp, x ) @ #t3)) ⇒
+    ((((#t1 < #t3) ∧
+       (∃ #t2.
+         (((((Unlock_0( p, l, x ) @ #t2) ∧ (#t1 < #t2)) ∧ (#t2 < #t3)) ∧
+           (∀ #t0 pp.1. (Unlock( pp.1, l, x ) @ #t0) ⇒ (#t0 = #t2))) ∧
+          (∀ pp.1 lpp #t0.
+            (Lock( pp.1, lpp, x ) @ #t0) ⇒
+            (((#t0 < #t1) ∨ (#t0 = #t1)) ∨ (#t2 < #t0)))) ∧
+         (∀ pp.1 lpp #t0.
+           (Unlock( pp.1, lpp, x ) @ #t0) ⇒
+           (((#t0 < #t1) ∨ (#t2 < #t0)) ∨ (#t2 = #t0))))) ∨
+      (#t3 < #t1)) ∨
+     (#t1 = #t3))"
+
+restriction locking_1:
+  "∀ p pp l x lp #t1 #t3.
+    ((Lock_1( p, l, x ) @ #t1) ∧ (Lock( pp, lp, x ) @ #t3)) ⇒
+    ((((#t1 < #t3) ∧
+       (∃ #t2.
+         (((((Unlock_1( p, l, x ) @ #t2) ∧ (#t1 < #t2)) ∧ (#t2 < #t3)) ∧
+           (∀ #t0 pp.1. (Unlock( pp.1, l, x ) @ #t0) ⇒ (#t0 = #t2))) ∧
+          (∀ pp.1 lpp #t0.
+            (Lock( pp.1, lpp, x ) @ #t0) ⇒
+            (((#t0 < #t1) ∨ (#t0 = #t1)) ∨ (#t2 < #t0)))) ∧
+         (∀ pp.1 lpp #t0.
+           (Unlock( pp.1, lpp, x ) @ #t0) ⇒
+           (((#t0 < #t1) ∨ (#t2 < #t0)) ∨ (#t2 = #t0))))) ∨
+      (#t3 < #t1)) ∨
+     (#t1 = #t3))"
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code5-O.spthy
+
+  processing time: 1.74s
+  
+  crtest (all-traces): verified (19 steps)
+  checktest (exists-trace): verified (6 steps)
+
+==============================================================================

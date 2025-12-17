@@ -1,0 +1,130 @@
+theory deterministic_public_key begin
+
+// Function signature and definition of the equational theory E
+
+functions: adec/2, aenc/2, decrypt/2, encrypt/2, fst/1, pair/2, pk/1,
+           snd/1
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    decrypt(encrypt(m, k), k) = m,
+    fst(<x.1, x.2>) = x.1,
+    snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+rule (modulo E) Setup:
+   [ Fr( ~k ) ] --> [ !Key( ~k ), !Pk( pk(~k) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) enc_message_Alice:
+   [ Fr( ~k ), Fr( ~m ) ]
+  --[ Send( encrypt(~m, pk(~k)) ), Secret_A( ~m ) ]->
+   [ Out( encrypt(~m, pk(~k)) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) dec_message_Bob:
+   [ In( c ), !Key( ~k ) ]
+  --[ Receive( decrypt(c, ~k) ), Secret_B( decrypt(c, ~k) ) ]->
+   [ ]
+
+  /*
+  rule (modulo AC) dec_message_Bob:
+     [ In( c ), !Key( ~k ) ] --[ Receive( z ), Secret_B( z ) ]-> [ ]
+    variants (modulo AC)
+    1. ~k    = ~k.4
+       c     = c.4
+       z     = decrypt(c.4, ~k.4)
+    
+    2. ~k    = ~x.4
+       c     = encrypt(x.5, ~x.4)
+       z     = x.5
+  */
+
+rule (modulo E) Attack_m1:
+   [ Fr( ~m1 ), Fr( ~k ) ]
+  --[ SendReveal( encrypt(~m1, pk(~k)) ) ]->
+   [ Out( encrypt(~m1, pk(~k)) ) ]
+
+  /* has exactly the trivial AC variant */
+
+lemma message_secret_alice:
+  all-traces "∀ m #i #j. ((Secret_A( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret_A( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+solve( !KU( ~m ) @ #vk )
+  case enc_message_Alice
+  by solve( !KU( ~k ) @ #vk.2 )
+qed
+
+lemma message_secret_bob:
+  all-traces "∀ m #i #j. ((Secret_B( m ) @ #i) ∧ (K( m ) @ #j)) ⇒ (⊥)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ m #i #j. (Secret_B( m ) @ #i) ∧ (K( m ) @ #j)"
+*/
+simplify
+solve( !Key( ~k ) ▶₁ #i )
+  case Setup
+  solve( splitEqs(0) )
+    case split_case_1
+    solve( !KU( decrypt(c, ~k) ) @ #vk.1 )
+      case c_decrypt
+      by solve( !KU( ~k ) @ #vk.2 )
+    qed
+  next
+    case split_case_2
+    solve( !KU( encrypt(m, ~k) ) @ #vk )
+      case c_encrypt
+      by solve( !KU( ~k ) @ #vk.2 )
+    qed
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code5-H.spthy
+
+  processing time: 0.16s
+  
+  message_secret_alice (all-traces): verified (3 steps)
+  message_secret_bob (all-traces): verified (7 steps)
+
+==============================================================================

@@ -1,0 +1,87 @@
+Linear part: No equation.
+Convergent part:
+con(divhead(mt),divrest(mt)) = mt
+unbindm(bindm(stm,n)) = stm
+Completing equations...
+Completed equations:
+unbindm(bindm(stm,n)) = stm
+con(divhead(mt),divrest(mt)) = mt
+Process 0 (that is, the initial process):
+(
+    {1}!
+    {2}in(c, (mm: bitstring,ni: nat));
+    (
+        {3}out(t, (bindm(pad(mm),5),iv,mm))
+    ) | (
+        {4}!
+        {5}in(t, (rm: bitstring,ha: bitstring,mm_1: bitstring));
+        {6}if (mm_1 = mm) then
+        {7}let bl: nat = nofblocks(rm) in
+        {8}if (bl ≠ 1) then
+        (
+            {9}let newbl: bitstring = divhead(rm) in
+            {10}let newstream: bitstring = divrest(rm) in
+            {11}let bindns: bitstring = bindm(newstream,bl - 1) in
+            {12}let newha: bitstring = comp(ha,newbl) in
+            {13}out(t, (bindns,newha,mm_1))
+        )
+        else
+            {14}let MDh: bitstring = comp(ha,rm) in
+            {15}insert MD(mm,MDh);
+            {16}out(c, MDh)
+    )
+) | (
+    {17}!
+    {18}in(c, (m1: bitstring,m2: bitstring));
+    {22}get MD(=m1,MDm1: bitstring) in
+    {21}get MD(=m2,MDm2: bitstring) in
+    {19}if ((m1 ≠ m2) && (MDm1 = MDm2)) then
+    {20}event COL
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}!
+    {2}in(c, (mm: bitstring,ni: nat));
+    (
+        {3}out(t, (bindm(pad(mm),5),iv,mm))
+    ) | (
+        {4}!
+        {5}in(t, (rm: bitstring,ha: bitstring,mm_1: bitstring));
+        {6}if (mm_1 = mm) then
+        {7}let bl: nat = nofblocks(rm) in
+        {8}if (bl ≠ 1) then
+        (
+            {10}let newstream: bitstring = divrest(rm) in
+            {11}let bindns: bitstring = bindm(newstream,bl - 1) in
+            {9}let newbl: bitstring = divhead(rm) in
+            {12}let newha: bitstring = comp(ha,newbl) in
+            {13}out(t, (bindns,newha,mm_1))
+        )
+        else
+            {14}let MDh: bitstring = comp(ha,rm) in
+            {15}insert MD(mm,MDh);
+            {16}out(c, MDh)
+    )
+) | (
+    {17}!
+    {18}in(c, (m1: bitstring,m2: bitstring));
+    {22}get MD(=m1,MDm1: bitstring) in
+    {21}get MD(=m2,MDm2: bitstring) in
+    {19}if ((m1 ≠ m2) && (MDm1 = MDm2)) then
+    {20}event COL
+)
+
+-- Query not event(COL) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not event(COL)
+RESULT not event(COL) is true.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not event(COL) is true.
+
+--------------------------------------------------------------
+

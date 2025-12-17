@@ -1,0 +1,32 @@
+//  (* Code.5-L: Tamarin Prover - One Time Password model *)
+theory OTP
+begin
+
+builtins: hashing
+
+rule Init_Sequence:
+  [ ] --> [ !Next('1', '2'), !Next('2', '3')]
+
+rule Start_Chain:
+  [ Fr(~seed) ] --[ Start() ]-> [ State('1', h(~seed)), !Seed(~seed) ]
+
+rule Chain_Step:
+  [ State(current, val), !Next(current, next) ] --[ Step(current) ]-> [ State(next, h(val)) ]
+
+rule Check_Collision:
+  let
+  expected = h(h(h(~seed)))
+  in
+  [ State('3', otp3), !Seed(~seed) ] --[ Eq(otp3, expected), ReachCOL() ]-> [ ]
+
+restriction Equality:
+  "All x y #i. Eq(x, y) @i ==> x = y"
+
+lemma COL_reachable:
+ exists-trace
+ "Ex #i. ReachCOL() @i"
+
+lemma Hash_Correctness:
+ "All x y #i. Eq(x, y) @i ==> x = y"
+
+end

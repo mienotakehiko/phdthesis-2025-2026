@@ -1,0 +1,69 @@
+(* Code.5-M: ProVerif - MD model for Verifying Collision Resistance *)
+free c:channel.
+free s:channel[private].
+free t:channel[private].
+free m:bitstring[private].
+const iv:bitstring.
+
+fun con(bitstring,bitstring):bitstring.
+fun divhead(bitstring):bitstring.
+fun divrest(bitstring):bitstring.
+equation forall mt:bitstring;
+         con(divhead(mt),divrest(mt))=mt.
+
+(* Compress function *)
+fun comp(bitstring,bitstring):bitstring.
+
+(* Padding function *)
+fun pad(bitstring):bitstring.
+
+table MD(bitstring,bitstring).
+
+fun bindm(bitstring,nat):bitstring. 
+
+fun nofblocks(bitstring):nat
+reduc forall stm:bitstring,blocks:nat;
+      nofblocks(bindm(stm,blocks))=blocks.
+
+fun unbindm(bitstring):bitstring.
+equation forall stm:bitstring,n:nat;
+         unbindm(bindm(stm,n))=stm.
+
+(* Query *)
+event COL.
+query event(COL).
+
+(* MD construction for adversary *)
+let makeMDadv(mm':bitstring) =
+    in(t,(rm:bitstring,ha:bitstring,mm:bitstring));
+    if mm = mm' then
+    let bl = nofblocks(rm) in 
+    if(bl <> 1) then 
+    (
+      let newbl = divhead(rm) in
+      let newstream = divrest(rm) in
+      let bindns = bindm(newstream,bl-1) in
+      let newha = comp(ha,newbl) in
+      out(t,(bindns,newha,mm))
+    ) else (
+      let MDh = comp(ha,rm) in
+      insert MD(mm',MDh);
+      out(c,MDh) 
+    ).
+
+(* Indicating-Process for Collision Resistance *)
+let Collision =
+    in(c,(m1:bitstring,m2:bitstring));
+    get MD(=m1,MDm1) in
+    get MD(=m2,MDm2) in
+    if(m1 <> m2 && MDm1 = MDm2)
+    then event COL.
+
+(* Main process *)
+process
+    !(
+       in(c,(mm:bitstring,ni:nat));
+       out(t,(bindm(pad(mm),5),iv,mm))
+       | !makeMDadv(mm)
+     )
+     | !Collision

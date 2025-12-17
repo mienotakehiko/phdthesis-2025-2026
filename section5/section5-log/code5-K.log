@@ -1,0 +1,102 @@
+Process 0 (that is, the initial process):
+{1}let a1: nat = 3 in
+(
+    {2}out(u1, a1)
+) | (
+    {3}!
+    {4}let s: bitstring = seed in
+    {5}in(u1, x2: nat);
+    {6}let x3: nat = x2 - 1 in
+    {7}if (x3 ≠ 0) then
+    (
+        {8}out(u1, x3);
+        {9}in(u2, (x4: nat,sk: bitstring));
+        {10}if (x4 = x3) then
+        {11}let otp3: bitstring = hash(sk) in
+        {12}out(u2, (x2,otp3));
+        {13}if (otp3 = hash(hash(hash(seed)))) then
+        {14}event COL
+    )
+    else
+        {15}out(u2, (x2,hash(seed)))
+)
+
+--  Process 1 (that is, process 0, with let moved downwards):
+(
+    {1}let a1: nat = 3 in
+    {2}out(u1, a1)
+) | (
+    {3}!
+    {5}in(u1, x2: nat);
+    {6}let x3: nat = x2 - 1 in
+    {7}if (x3 ≠ 0) then
+    (
+        {8}out(u1, x3);
+        {9}in(u2, (x4: nat,sk: bitstring));
+        {10}if (x4 = x3) then
+        {11}let otp3: bitstring = hash(sk) in
+        {12}out(u2, (x2,otp3));
+        {13}if (otp3 = hash(hash(hash(seed)))) then
+        {14}event COL
+    )
+    else
+        {15}out(u2, (x2,hash(seed)))
+)
+
+-- Query not event(COL) in process 1.
+Translating the process into Horn clauses...
+Completing...
+Starting query not event(COL)
+goal reachable: event(COL)
+
+Derivation:
+
+1. The message 3 may be sent on channel u1[] at output {2}.
+mess(u1[],3).
+
+2. The message 3 that may be sent on channel u1[] by 1 may be received at input {5}.
+We have 2 ≠ 0.
+So the message 2 may be sent on channel u1[] at output {8}.
+mess(u1[],2).
+
+3. The message 3 that may be sent on channel u1[] by 1 may be received at input {5}.
+We have 2 ≠ 0.
+So the message 2 may be sent on channel u1[] at output {8}.
+mess(u1[],2).
+
+4. The message 2 that may be sent on channel u1[] by 3 may be received at input {5}.
+We have 1 ≠ 0.
+So the message 1 may be sent on channel u1[] at output {8}.
+mess(u1[],1).
+
+5. The message 1 that may be sent on channel u1[] by 4 may be received at input {5}.
+So the message (1,hash(seed[])) may be sent on channel u2[] at output {15}.
+mess(u2[],(1,hash(seed[]))).
+
+6. The message 2 that may be sent on channel u1[] by 2 may be received at input {5}.
+The message (1,hash(seed[])) that may be sent on channel u2[] by 5 may be received at input {9}.
+We have 1 ≠ 0.
+So the message (2,hash(hash(seed[]))) may be sent on channel u2[] at output {12}.
+mess(u2[],(2,hash(hash(seed[])))).
+
+7. The message 3 that may be sent on channel u1[] by 1 may be received at input {5}.
+The message (2,hash(hash(seed[]))) that may be sent on channel u2[] by 6 may be received at input {9}.
+We have 2 ≠ 0.
+So event COL may be executed at {14}.
+event(COL).
+
+8. By 7, event(COL).
+The goal is reached, represented in the following fact:
+event(COL).
+
+
+Could not find a trace corresponding to this derivation.
+RESULT not event(COL) cannot be proved.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not event(COL) cannot be proved.
+
+--------------------------------------------------------------
+

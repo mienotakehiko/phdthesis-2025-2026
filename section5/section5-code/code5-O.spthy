@@ -1,0 +1,49 @@
+//  (* Code.5-O: Tamarin Prover - MD model for Verifying Collision Resistance *)
+theory crtest2
+begin
+
+builtins: locations-report, hashing
+functions: check/2,null/0,counternow/1,list/2
+
+predicates:
+Report(x,y) <=> not  (y= 'l')
+
+restriction Inequality:
+"All x y #i. Neq(x,y) @ #i ==> F"
+
+let mblock =
+	(lock state; lookup state as st in
+    let blockwhere = fst(st) in
+    let counter = snd(st) in
+	in(length); new a; let nowblock = check(length,blockwhere) in
+	let x = report (<nowblock,length,counter>) in
+		out(<nowblock,x>);
+		event Hashsend(h(nowblock));
+		insert state,<<nowblock,list(length,blockwhere)>,counternow(counter)>;
+		unlock state)@'l'
+
+let revealblock =
+	(lock state; lookup state as st in
+    let blockwhere = fst(st) in
+    let counter = snd(st) in
+	in(length); new a; let nowblock = check(length,blockwhere) in
+	let x = report (<nowblock,length,counter>) in
+		out(<nowblock,x>);
+		event HashReveal(h(nowblock));
+		insert state,<<nowblock,list(length,blockwhere)>,counternow(counter)>;
+		unlock state)@'l'
+
+
+let hashrevealcheck =
+[Fr(~newm1),Fr(~newm2)] --[Neq(~newm1, ~newm2),Hashreveal1(h(~newm1)),Hashreveal1(h(~newm2))]-> [Out(h(~newm1)),Out(h(~newm2))]
+
+process:
+ ( !(new state; insert state,<'init',null()>;!mblock) ||  !(new state; insert state,<'init',null()>; !revealblock) ||  !(hashrevealcheck))
+
+lemma crtest:
+"All m1 m2 #k #l. Hashreveal1(h(m1))@#k & Hashreveal1(h(m2))@#l ==> ((h(m1)=h(m2)) &#k=#l & #k<#l)"
+
+lemma checktest:
+exists-trace
+"not(All #i hash. HashReveal(h(hash))@#i ==> (Ex #j . Hashsend(h(hash))@#j & #j<#i))"
+end

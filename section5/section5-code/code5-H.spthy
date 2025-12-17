@@ -1,0 +1,29 @@
+//  (* Code.5-H: Tamarin Prover - Deterministic publickey cryptography model *)
+theory deterministic_public_key
+begin
+functions: encrypt/2,decrypt/2
+equations: decrypt(encrypt(m, k),k) = m
+
+builtins: asymmetric-encryption
+
+rule Setup: [Fr(~k)] --> [!Key(~k), !Pk(pk(~k))]
+
+rule enc_message_Alice: 
+[Fr(~k), Fr(~m)] --[Send(encrypt(~m, pk(~k))), Secret_A(~m)]-> [Out(encrypt(~m, pk(~k)))]
+
+rule dec_message_Bob: 
+let 
+ m_ = decrypt(c, ~k)
+in
+[In(c), !Key(~k)] --[Receive(m_), Secret_B(m_)]-> []
+
+rule Attack_m1:
+[Fr(~m1), Fr(~k)] --[SendReveal(encrypt(~m1, pk(~k)))]-> [Out(encrypt(~m1, pk(~k)))]
+
+lemma message_secret_alice:
+"All m #i #j. Secret_A(m)@i & K(m)@j ==>F"
+
+lemma message_secret_bob:
+"All m #i #j. Secret_B(m)@i & K(m)@j ==>F"
+
+end

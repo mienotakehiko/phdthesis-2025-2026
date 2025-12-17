@@ -1,0 +1,105 @@
+theory OTP begin
+
+// Function signature and definition of the equational theory E
+
+functions: fst/1, h/1, pair/2, snd/1
+equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
+
+
+
+
+
+
+
+rule (modulo E) Init_Sequence:
+   [ ] --> [ !Next( '1', '2' ), !Next( '2', '3' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Start_Chain:
+   [ Fr( ~seed ) ]
+  --[ Start( ) ]->
+   [ State( '1', h(~seed) ), !Seed( ~seed ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Chain_Step:
+   [ State( current, val ), !Next( current, next ) ]
+  --[ Step( current ) ]->
+   [ State( next, h(val) ) ]
+
+  // loop breaker: [0]
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Check_Collision:
+   [ State( '3', otp3 ), !Seed( ~seed ) ]
+  --[ Eq( otp3, h(h(h(~seed))) ), ReachCOL( ) ]->
+   [ ]
+
+  /* has exactly the trivial AC variant */
+
+restriction Equality:
+  "∀ x y #i. (Eq( x, y ) @ #i) ⇒ (x = y)"
+  // safety formula
+
+lemma COL_reachable:
+  exists-trace "∃ #i. ReachCOL( ) @ #i"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ #i. (ReachCOL( ) @ #i)"
+*/
+simplify
+solve( State( '3', h(h(h(~seed))) ) ▶₀ #i )
+  case Chain_Step
+  solve( !Seed( ~seed ) ▶₁ #i )
+    case Start_Chain
+    solve( State( '2', h(h(~seed)) ) ▶₀ #vr )
+      case Chain_Step
+      solve( State( '1', h(~seed) ) ▶₀ #vr.3 )
+        case Start_Chain
+        SOLVED // trace found
+      qed
+    qed
+  qed
+qed
+
+lemma Hash_Correctness:
+  all-traces "∀ x y #i. (Eq( x, y ) @ #i) ⇒ (x = y)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ x y #i. (Eq( x, y ) @ #i) ∧ ¬(x = y)"
+*/
+simplify
+by contradiction /* from formulas */
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code5-L.spthy
+
+  processing time: 0.16s
+  
+  COL_reachable (exists-trace): verified (6 steps)
+  Hash_Correctness (all-traces): verified (2 steps)
+
+==============================================================================

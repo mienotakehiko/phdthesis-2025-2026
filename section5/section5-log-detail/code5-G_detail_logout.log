@@ -1,0 +1,139 @@
+Linear part: No equation.
+Convergent part:
+decrypt(encrypt(x,pk(y),r),y) = x
+Completing equations...
+Completed equations:
+decrypt(encrypt(x,pk(y),r),y) = x
+Biprocess 0 (that is, the initial process):
+{1}new nonce: bitstring;
+(
+    {2}out(c, pk(secretkey));
+    {3}in(c, c_2: bitstring);
+    {4}out(c, choice[nonce,c_2])
+) | (
+    {5}let pk_1: pkey = pk(secretkey) in
+    {6}new randomvalue: bitstring;
+    {7}let c_1: bitstring = encrypt(m,pk_1,randomvalue) in
+    {8}out(c, c_1)
+)
+
+-- Observational equivalence in biprocess 1 (that is, biprocess 0, with let moved downwards):
+{1}new nonce: bitstring;
+(
+    {2}out(c, pk(secretkey));
+    {3}in(c, c_2: bitstring);
+    {4}out(c, choice[nonce,c_2])
+) | (
+    {6}new randomvalue: bitstring;
+    {5}let pk_1: pkey = pk(secretkey) in
+    {7}let c_1: bitstring = encrypt(m,pk_1,randomvalue) in
+    {8}out(c, c_1)
+)
+
+Translating the process into Horn clauses...
+Termination warning: v ≠ v_1 && attacker2(v_2,v) && attacker2(v_2,v_1) -> bad
+Selecting 0
+Termination warning: v ≠ v_1 && attacker2(v,v_2) && attacker2(v_1,v_2) -> bad
+Selecting 0
+Completing...
+Termination warning: v ≠ v_1 && attacker2(v_2,v) && attacker2(v_2,v_1) -> bad
+Selecting 0
+Termination warning: v ≠ v_1 && attacker2(v,v_2) && attacker2(v_1,v_2) -> bad
+Selecting 0
+goal reachable: any_val ≠ nonce[] -> bad
+
+Derivation:
+
+1. The attacker has some term c_3 (resp. c_4).
+attacker2(c_3,c_4).
+
+2. The message c_3 (resp. c_4) that the attacker may have by 1 may be received at input {3}.
+So the message nonce[] (resp. c_4) may be sent to the attacker at output {4}.
+attacker2(nonce[],c_4).
+
+3. By 2, the attacker may know nonce[] (resp. c_4).
+By 1, the attacker may know c_3 (resp. c_4).
+We have nonce[] ≠ c_3.
+The attacker tests equality between the two terms he knows, which may allow it to distinguish cases.
+bad.
+
+
+Unified c_3 with c_4
+Initial state
+
+Additional knowledge of the attacker:
+c
+a
+--------------------------------------------------------------
+New processes:
+    new nonce: bitstring;
+    (
+        out(c, pk(secretkey));
+        in(c, c_2: bitstring);
+        out(c, choice[nonce,c_2])
+    ) | (
+        new randomvalue: bitstring;
+        let pk_1: pkey = pk(secretkey) in
+        let c_1: bitstring = encrypt(m,pk_1,randomvalue) in
+        out(c, c_1)
+    )
+
+--------------------------------------------------------------
+1st process: new nonce: bitstring creating nonce_1
+
+1st process: Reduction |
+
+2nd process: Beginning of process sender
+
+2nd process: new randomvalue: bitstring creating randomvalue_1
+
+2nd process: let pk_1: pkey = pk(secretkey) succeeds
+
+2nd process: let c_1: bitstring = encrypt(m,pk(secretkey),randomvalue_1) succeeds
+
+2nd process: out(c, ~M) with ~M = encrypt(m,pk(secretkey),randomvalue_1) done
+
+Additional knowledge of the attacker:
+~M = encrypt(m,pk(secretkey),randomvalue_1)
+--------------------------------------------------------------
+2nd process: Reduction 0
+
+1st process: out(c, ~M_1) with ~M_1 = pk(secretkey) done
+
+Additional knowledge of the attacker:
+~M_1 = pk(secretkey)
+--------------------------------------------------------------
+New processes:
+    in(c, c_2: bitstring);
+    out(c, choice[nonce_1,c_2])
+
+--------------------------------------------------------------
+1st process: in(c, c_2: bitstring) done with message a
+
+1st process: out(c, ~M_2) with ~M_2 = choice[nonce_1,a] done
+
+Additional knowledge of the attacker:
+~M_2 = choice[nonce_1,a]
+--------------------------------------------------------------
+1st process: Reduction 0
+
+New processes:
+
+--------------------------------------------------------------
+The attacker tests whether
+~M_2 = choice[nonce_1,a]
+is equal to
+a.
+The result in the left-hand side is different from the result in the right-hand side.
+A trace has been found.
+RESULT Observational equivalence cannot be proved.
+Looking for simplified processes ...
+No simplified process found.
+
+--------------------------------------------------------------
+Verification summary:
+
+Observational equivalence cannot be proved.
+
+--------------------------------------------------------------
+

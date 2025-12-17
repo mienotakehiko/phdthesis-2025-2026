@@ -1,0 +1,638 @@
+theory makemdtest begin
+
+// Function signature and definition of the equational theory E
+
+functions: check/2, check_rep/2[destructor], counternow/1, fst/1,
+           get_rep/1[destructor], list/2, null/0, pair/2, rep/2[private,destructor],
+           report/1, snd/1
+equations:
+    check_rep(rep(x.1, x.2), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    get_rep(rep(x.1, x.2)) = x.1,
+    snd(<x.1, x.2>) = x.2
+
+
+
+heuristic: p
+
+
+
+predicate: Report( x, y )<=>¬(y = 'l')
+
+
+
+
+
+
+
+lemma md_block:
+  exists-trace
+  "¬(∀ #i no le nb l.
+      (MakeBlockCheck( <no, le, nb, list(l, 'init')> ) @ #i) ⇒
+      (∃ #j. (MakeBlock( <no, le, nb, list(l, 'init')> ) @ #j) ∧ (#j < #i)))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ #i no le nb l.
+  (MakeBlockCheck( <no, le, nb, list(l, 'init')> ) @ #i)
+ ∧
+  ∀ #j. (MakeBlock( <no, le, nb, list(l, 'init')> ) @ #j) ⇒ ¬(#j < #i)"
+*/
+simplify
+solve( State_121111111111( lock, tail, le, no,
+                           <<nb, list(l, 'init')>, x>, state
+       ) ▶₀ #i )
+  case ifnowblocklengthsndstcheckreptaill_0_12111111111_case_1
+  solve( (#vr.3 < #t2)  ∥ (#vr.3 = #t2) )
+    case case_1
+    solve( (#vr.10 < #t2.1)  ∥ (#vr.10 = #t2.1) )
+      case case_1
+      solve( splitEqs(1) )
+        case split_case_2
+        solve( Insert( ~n.1, <<nb, list(l, 'init')>, x> ) @ #t2 )
+          case insertstatenowblocklistlengthfststcounternowsndst_0_1211111111111
+          solve( State_1211111111111( lock, tail, l, nb, <'init', z.1>, ~n.1
+                 ) ▶₀ #t2 )
+            case eventMakeBlockChecknowblocklengthfstst_0_121111111111_case_1
+            solve( ((#vr.2 < #vr.15) ∧
+                    (∃ #t2.
+                      (Unlock_1( '1', ~n, ~n.1 ) @ #t2)
+                     ∧
+                      (#vr.2 < #t2) ∧
+                      (#t2 < #vr.15) ∧
+                      (∀ #t0 pp. (Unlock( pp, ~n, ~n.1 ) @ #t0) ⇒ #t0 = #t2) ∧
+                      (∀ pp lpp #t0.
+                        (Lock( pp, lpp, ~n.1 ) @ #t0)
+                       ⇒
+                        ((#t0 < #vr.2) ∨ (#t0 = #vr.2) ∨ (#t2 < #t0))) ∧
+                      (∀ pp lpp #t0.
+                        (Unlock( pp, lpp, ~n.1 ) @ #t0)
+                       ⇒
+                        ((#t0 < #vr.2) ∨ (#t2 < #t0) ∨ (#t2 = #t0)))))  ∥
+                   (#vr.15 < #vr.2)  ∥ (#vr.2 = #vr.15) )
+              case case_2
+              solve( (#vr.3 < #t2.3)  ∥ (#vr.3 = #t2.3) )
+                case case_2
+                solve( (#vr.19 < #t2.4)  ∥ (#vr.19 = #t2.4) )
+                  case case_2
+                  solve( State_12111111111111( ~n.2, tail, length, nowblock, st, ~n.1
+                         ) ▶₀ #t2.1 )
+                    case insertstatenowblocklistlengthfststcounternowsndst_0_1211111111111_case_1
+                    solve( (#t2.2 < #t2.5)  ∥ (#t2.2 = #t2.5) )
+                      case case_2
+                      solve( (#t2.3 < #t2.5)  ∥ (#t2.3 = #t2.5) )
+                        case case_2
+                        solve( splitEqs(4) )
+                          case split_case_2
+                          solve( Insert( ~n.5, <z, counternow(z.1)> ) @ #t2.4 )
+                            case insertstatechecklengthfststlistlengthfststcounternowsndst_0_11111111111
+                            solve( State_11111111111( lock, length, st, ~n.4 ) ▶₀ #t2.4 )
+                              case eventMakeBlockchecklengthfststlengthfstst_0_111111111
+                              solve( ((#vr.8 < #vr.22) ∧
+                                      (∃ #t2.
+                                        (Unlock_0( '0', ~n.6, ~n.5 ) @ #t2)
+                                       ∧
+                                        (#vr.8 < #t2) ∧
+                                        (#t2 < #vr.22) ∧
+                                        (∀ #t0 pp. (Unlock( pp, ~n.6, ~n.5 ) @ #t0) ⇒ #t0 = #t2) ∧
+                                        (∀ pp lpp #t0.
+                                          (Lock( pp, lpp, ~n.5 ) @ #t0)
+                                         ⇒
+                                          ((#t0 < #vr.8) ∨ (#t0 = #vr.8) ∨ (#t2 < #t0))) ∧
+                                        (∀ pp lpp #t0.
+                                          (Unlock( pp, lpp, ~n.5 ) @ #t0)
+                                         ⇒
+                                          ((#t0 < #vr.8) ∨ (#t2 < #t0) ∨ (#t2 = #t0)))))  ∥
+                                     (#vr.22 < #vr.8)  ∥ (#vr.8 = #vr.22) )
+                                case case_2
+                                solve( (#vr.9 < #t2.6)  ∥ (#vr.9 = #t2.6) )
+                                  case case_2
+                                  solve( State_111111111111( ~n.4, length.1, st.1, ~n.5 ) ▶₀ #t2.5 )
+                                    case insertstatechecklengthfststlistlengthfststcounternowsndst_0_11111111111
+                                    solve( (#t2.6 < #t2.7)  ∥ (#t2.6 = #t2.7) )
+                                      case case_2
+                                      solve( splitEqs(11) )
+                                        case split_case_2
+                                        solve( Insert( ~n.1, <'init', z.1> ) @ #t2.2 )
+                                          case p_1_12
+                                          solve( Insert( ~n.3, <z.1, null> ) @ #t2.3 )
+                                            case newstate_0_11
+                                            solve( Insert( ~n.5, <z, null> ) @ #t2.6 )
+                                              case newstate_0_11
+                                              solve( !KU( check(le,
+                                                                <check(length, 'init'), list(length, 'init')>)
+                                                     ) @ #vk.5 )
+                                                case c_check
+                                                solve( !KU( list(length, 'init') ) @ #vk.11 )
+                                                  case c_list
+                                                  solve( !KU( check(l, 'init') ) @ #vk.8 )
+                                                    case c_check
+                                                    solve( !KU( check(length, 'init') ) @ #vk.11 )
+                                                      case c_check
+                                                      SOLVED // trace found
+                                                    qed
+                                                  qed
+                                                qed
+                                              qed
+                                            qed
+                                          qed
+                                        qed
+                                      qed
+                                    qed
+                                  qed
+                                qed
+                              qed
+                            qed
+                          qed
+                        qed
+                      qed
+                    qed
+                  qed
+                qed
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+restriction Restr_ReportRule_1:
+  "∀ x #NOW. (Restr_ReportRule_1( x ) @ #NOW) ⇒ (¬(x = 'l'))"
+  // safety formula
+
+rule (modulo E) ReportRule[color=#ffffff, process="!", issapicrule]:
+   [ In( <x, loc> ) ]
+  --[ Restr_ReportRule_1( loc ) ]->
+   [ Out( rep(x, loc) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Init[color=#ffffff, process="!", issapicrule]:
+   [ ] --[ Init( ) ]-> [ !Semistate_1( ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) newstate_0_11[color=#ffffff, process="new state.1;",
+                              issapicrule]:
+   [ State_11( ), Fr( state.1 ) ]
+  --[ Insert( state.1, <'init', null> ) ]->
+   [ !Semistate_11111( state.1 ) ]
+
+  /*
+  rule (modulo AC) newstate_0_11[color=#ffffff, process="new state.1;",
+                                 issapicrule]:
+     [ State_11( ), Fr( state ) ]
+    --[ Insert( state, <'init', null> ) ]->
+     [ !Semistate_11111( state ) ]
+  */
+
+rule (modulo E) p_1_1111[color=#ffffff, process="!", issapicrule]:
+   [ !Semistate_11111( state.1 ), Fr( lock ) ]
+  --[ Lock_0( '0', lock, state.1 ), Lock( '0', lock, state.1 ) ]->
+   [ State_1111111( lock, state.1 ) ]
+
+  /*
+  rule (modulo AC) p_1_1111[color=#ffffff, process="!", issapicrule]:
+     [ !Semistate_11111( state ), Fr( lock ) ]
+    --[ Lock_0( '0', lock, state ), Lock( '0', lock, state ) ]->
+     [ State_1111111( lock, state ) ]
+  */
+
+rule (modulo E) lookupstateasst_0_1111111[color=#40804d,
+                                          process="lookup state.1 as st.1", issapicrule]:
+   [ State_1111111( lock, state.1 ), In( length.1 ) ]
+  --[ IsIn( state.1, st.1 ) ]->
+   [ State_111111111( lock, length.1, st.1, state.1 ) ]
+
+  /*
+  rule (modulo AC) lookupstateasst_0_1111111[color=#40804d,
+                                             process="lookup state.1 as st.1", issapicrule]:
+     [ State_1111111( lock, state ), In( length ) ]
+    --[ IsIn( state, st ) ]->
+     [ State_111111111( lock, length, st, state ) ]
+  */
+
+rule (modulo E) eventMakeBlockchecklengthfststlengthfstst_0_111111111[color=#40804d,
+                                                                      process="event MakeBlock( <check(length.1, fst(st.1)), length.1, fst(st.1)> );",
+                                                                      issapicrule]:
+   [ State_111111111( lock, length.1, st.1, state.1 ) ]
+  --[ MakeBlock( <check(length.1, fst(st.1)), length.1, fst(st.1)> ) ]->
+   [
+   State_11111111111( lock, length.1, st.1, state.1 ),
+   Out( <check(length.1, fst(st.1)), 
+         rep(<check(length.1, fst(st.1)), length.1, snd(st.1)>, 'l')>
+   )
+   ]
+
+  /*
+  rule (modulo AC) eventMakeBlockchecklengthfststlengthfstst_0_111111111[color=#40804d,
+                                                                         process="event MakeBlock( <check(length.1, fst(st.1)), length.1, fst(st.1)> );",
+                                                                         issapicrule]:
+     [ State_111111111( lock, length, st, state ) ]
+    --[ MakeBlock( <check(length, z), length, z> ) ]->
+     [
+     State_11111111111( lock, length, st, state ),
+     Out( <check(length, z), rep(<check(length, z), length, z.1>, 'l')> )
+     ]
+    variants (modulo AC)
+    1. st    = st.9
+       z     = fst(st.9)
+       z.1   = snd(st.9)
+    
+    2. st    = <z.10, z.11>
+       z     = z.10
+       z.1   = z.11
+  */
+
+rule (modulo E) insertstatechecklengthfststlistlengthfststcounternowsndst_0_11111111111[color=#40804d,
+                                                                                        process="insert state.1,<<check(length.1, fst(st.1)), list(length.1, fst(st.1))>, 
+ counternow(snd(st.1))>;",
+                                                                                        issapicrule]:
+   [ State_11111111111( lock, length.1, st.1, state.1 ) ]
+  --[
+  Insert( state.1,
+          <<check(length.1, fst(st.1)), list(length.1, fst(st.1))>, 
+           counternow(snd(st.1))>
+  )
+  ]->
+   [ State_111111111111( lock, length.1, st.1, state.1 ) ]
+
+  /*
+  rule (modulo AC) insertstatechecklengthfststlistlengthfststcounternowsndst_0_11111111111[color=#40804d,
+                                                                                           process="insert state.1,<<check(length.1, fst(st.1)), list(length.1, fst(st.1))>, 
+ counternow(snd(st.1))>;",
+                                                                                           issapicrule]:
+     [ State_11111111111( lock, length, st, state ) ]
+    --[
+    Insert( state, <<check(length, z), list(length, z)>, counternow(z.1)> )
+    ]->
+     [ State_111111111111( lock, length, st, state ) ]
+    variants (modulo AC)
+    1. st    = st.9
+       z     = fst(st.9)
+       z.1   = snd(st.9)
+    
+    2. st    = <x.8, x.9>
+       z     = x.8
+       z.1   = x.9
+  */
+
+rule (modulo E) unlockstate_0_111111111111[color=#40804d,
+                                           process="unlock state.1;", issapicrule]:
+   [ State_111111111111( lock, length.1, st.1, state.1 ) ]
+  --[ Unlock_0( '0', lock, state.1 ), Unlock( '0', lock, state.1 ) ]->
+   [ ]
+
+  /*
+  rule (modulo AC) unlockstate_0_111111111111[color=#40804d,
+                                              process="unlock state.1;", issapicrule]:
+     [ State_111111111111( lock, length, st, state ) ]
+    --[ Unlock_0( '0', lock, state ), Unlock( '0', lock, state ) ]->
+     [ ]
+  */
+
+rule (modulo E) lookupstateasst_1_1111111[color=#40804d,
+                                          process="lookup state.1 as st.1", issapicrule]:
+   [ State_1111111( lock, state.1 ) ] --[ IsNotSet( state.1 ) ]-> [ ]
+
+  /*
+  rule (modulo AC) lookupstateasst_1_1111111[color=#40804d,
+                                             process="lookup state.1 as st.1", issapicrule]:
+     [ State_1111111( lock, state ) ] --[ IsNotSet( state ) ]-> [ ]
+  */
+
+rule (modulo E) p_1_[color=#ffffff, process="!", issapicrule]:
+   [ !Semistate_1( ) ] --> [ !Semistate_121( ), State_11( ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) p_1_12[color=#ffffff, process="!", issapicrule]:
+   [ !Semistate_121( ), Fr( state.2 ) ]
+  --[ Insert( state.2, <'init', null> ) ]->
+   [ !Semistate_121111( state.2 ) ]
+
+  /*
+  rule (modulo AC) p_1_12[color=#ffffff, process="!", issapicrule]:
+     [ !Semistate_121( ), Fr( state ) ]
+    --[ Insert( state, <'init', null> ) ]->
+     [ !Semistate_121111( state ) ]
+  */
+
+rule (modulo E) p_1_12111[color=#ffffff, process="!", issapicrule]:
+   [ !Semistate_121111( state.2 ), Fr( lock.1 ) ]
+  --[ Lock_1( '1', lock.1, state.2 ), Lock( '1', lock.1, state.2 ) ]->
+   [ State_12111111( lock.1, state.2 ) ]
+
+  /*
+  rule (modulo AC) p_1_12111[color=#ffffff, process="!", issapicrule]:
+     [ !Semistate_121111( state ), Fr( lock ) ]
+    --[ Lock_1( '1', lock, state ), Lock( '1', lock, state ) ]->
+     [ State_12111111( lock, state ) ]
+  */
+
+rule (modulo E) lookupstateasst_0_12111111[color=#40806f,
+                                           process="lookup state.2 as st.2", issapicrule]:
+   [
+   State_12111111( lock.1, state.2 ), In( length.2 ),
+   In( <nowblock.2, tail.1> )
+   ]
+  --[ IsIn( state.2, st.2 ) ]->
+   [
+   State_12111111111( lock.1, tail.1, length.2, nowblock.2, st.2, state.2 )
+   ]
+
+  /*
+  rule (modulo AC) lookupstateasst_0_12111111[color=#40806f,
+                                              process="lookup state.2 as st.2", issapicrule]:
+     [ State_12111111( lock, state ), In( length ), In( <nowblock, tail> ) ]
+    --[ IsIn( state, st ) ]->
+     [ State_12111111111( lock, tail, length, nowblock, st, state ) ]
+  */
+
+rule (modulo E) ifnowblocklengthsndstcheckreptaill_0_12111111111[color=#40806f,
+                                                                 process="if <nowblock.2, length.2, snd(st.2)>=check_rep(tail.1, 'l')",
+                                                                 issapicrule]:
+   [
+   State_12111111111( lock.1, tail.1, length.2, nowblock.2, st.2, state.2 )
+   ]
+  --[ Pred_Eq( <nowblock.2, length.2, snd(st.2)>, check_rep(tail.1, 'l') )
+  ]->
+   [
+   State_121111111111( lock.1, tail.1, length.2, nowblock.2, st.2, state.2 )
+   ]
+
+  /*
+  rule (modulo AC) ifnowblocklengthsndstcheckreptaill_0_12111111111[color=#40806f,
+                                                                    process="if <nowblock.2, length.2, snd(st.2)>=check_rep(tail.1, 'l')",
+                                                                    issapicrule]:
+     [ State_12111111111( lock, tail, length, nowblock, st, state ) ]
+    --[ Pred_Eq( <nowblock, length, z>, z.1 ) ]->
+     [ State_121111111111( lock, tail, length, nowblock, st, state ) ]
+    variants (modulo AC)
+    1. st    = st.12
+       tail  = tail.11
+       z     = snd(st.12)
+       z.1   = check_rep(tail.11, 'l')
+    
+    2. st    = <x.11, x.12>
+       tail  = tail.13
+       z     = x.12
+       z.1   = check_rep(tail.13, 'l')
+    
+    3. st    = st.13
+       tail  = rep(x.11, 'l')
+       z     = snd(st.13)
+       z.1   = x.11
+    
+    4. st    = <x.14, x.15>
+       tail  = rep(x.11, 'l')
+       z     = x.15
+       z.1   = x.11
+  */
+
+rule (modulo E) eventMakeBlockChecknowblocklengthfstst_0_121111111111[color=#40806f,
+                                                                      process="event MakeBlockCheck( <nowblock.2, length.2, fst(st.2)> );",
+                                                                      issapicrule]:
+   [
+   State_121111111111( lock.1, tail.1, length.2, nowblock.2, st.2, state.2 )
+   ]
+  --[ MakeBlockCheck( <nowblock.2, length.2, fst(st.2)> ) ]->
+   [
+   State_1211111111111( lock.1, tail.1, length.2, nowblock.2, st.2, state.2
+   )
+   ]
+
+  /*
+  rule (modulo AC) eventMakeBlockChecknowblocklengthfstst_0_121111111111[color=#40806f,
+                                                                         process="event MakeBlockCheck( <nowblock.2, length.2, fst(st.2)> );",
+                                                                         issapicrule]:
+     [ State_121111111111( lock, tail, length, nowblock, st, state ) ]
+    --[ MakeBlockCheck( <nowblock, length, z> ) ]->
+     [ State_1211111111111( lock, tail, length, nowblock, st, state ) ]
+    variants (modulo AC)
+    1. st    = st.11
+       z     = fst(st.11)
+    
+    2. st    = <x.10, x.11>
+       z     = x.10
+  */
+
+rule (modulo E) insertstatenowblocklistlengthfststcounternowsndst_0_1211111111111[color=#40806f,
+                                                                                  process="insert state.2,<<nowblock.2, list(length.2, fst(st.2))>, counternow(snd(st.2))>;",
+                                                                                  issapicrule]:
+   [
+   State_1211111111111( lock.1, tail.1, length.2, nowblock.2, st.2, state.2
+   )
+   ]
+  --[
+  Insert( state.2,
+          <<nowblock.2, list(length.2, fst(st.2))>, counternow(snd(st.2))>
+  )
+  ]->
+   [
+   State_12111111111111( lock.1, tail.1, length.2, nowblock.2, st.2, state.2
+   )
+   ]
+
+  /*
+  rule (modulo AC) insertstatenowblocklistlengthfststcounternowsndst_0_1211111111111[color=#40806f,
+                                                                                     process="insert state.2,<<nowblock.2, list(length.2, fst(st.2))>, counternow(snd(st.2))>;",
+                                                                                     issapicrule]:
+     [ State_1211111111111( lock, tail, length, nowblock, st, state ) ]
+    --[ Insert( state, <<nowblock, list(length, z)>, counternow(z.1)> ) ]->
+     [ State_12111111111111( lock, tail, length, nowblock, st, state ) ]
+    variants (modulo AC)
+    1. st    = st.12
+       z     = fst(st.12)
+       z.1   = snd(st.12)
+    
+    2. st    = <x.11, x.12>
+       z     = x.11
+       z.1   = x.12
+  */
+
+rule (modulo E) unlockstate_0_12111111111111[color=#40806f,
+                                             process="unlock state.2;", issapicrule]:
+   [
+   State_12111111111111( lock.1, tail.1, length.2, nowblock.2, st.2, state.2
+   )
+   ]
+  --[ Unlock_1( '1', lock.1, state.2 ), Unlock( '1', lock.1, state.2 ) ]->
+   [ ]
+
+  /*
+  rule (modulo AC) unlockstate_0_12111111111111[color=#40806f,
+                                                process="unlock state.2;", issapicrule]:
+     [ State_12111111111111( lock, tail, length, nowblock, st, state ) ]
+    --[ Unlock_1( '1', lock, state ), Unlock( '1', lock, state ) ]->
+     [ ]
+  */
+
+rule (modulo E) ifnowblocklengthsndstcheckreptaill_1_12111111111[color=#40806f,
+                                                                 process="if <nowblock.2, length.2, snd(st.2)>=check_rep(tail.1, 'l')",
+                                                                 issapicrule]:
+   [
+   State_12111111111( lock.1, tail.1, length.2, nowblock.2, st.2, state.2 )
+   ]
+  --[
+  Pred_Not_Eq( <nowblock.2, length.2, snd(st.2)>, check_rep(tail.1, 'l') )
+  ]->
+   [
+   State_121111111112( lock.1, tail.1, length.2, nowblock.2, st.2, state.2 )
+   ]
+
+  /*
+  rule (modulo AC) ifnowblocklengthsndstcheckreptaill_1_12111111111[color=#40806f,
+                                                                    process="if <nowblock.2, length.2, snd(st.2)>=check_rep(tail.1, 'l')",
+                                                                    issapicrule]:
+     [ State_12111111111( lock, tail, length, nowblock, st, state ) ]
+    --[ Pred_Not_Eq( <nowblock, length, z>, z.1 ) ]->
+     [ State_121111111112( lock, tail, length, nowblock, st, state ) ]
+    variants (modulo AC)
+    1. st    = st.12
+       tail  = tail.11
+       z     = snd(st.12)
+       z.1   = check_rep(tail.11, 'l')
+    
+    2. st    = <x.11, x.12>
+       tail  = tail.13
+       z     = x.12
+       z.1   = check_rep(tail.13, 'l')
+    
+    3. st    = st.13
+       tail  = rep(x.11, 'l')
+       z     = snd(st.13)
+       z.1   = x.11
+    
+    4. st    = <x.14, x.15>
+       tail  = rep(x.11, 'l')
+       z     = x.15
+       z.1   = x.11
+  */
+
+rule (modulo E) eventFail_0_121111111112[color=#40806f,
+                                         process="event Fail( );", issapicrule]:
+   [
+   State_121111111112( lock.1, tail.1, length.2, nowblock.2, st.2, state.2 )
+   ]
+  --[ Fail( ) ]->
+   [ ]
+
+  /*
+  rule (modulo AC) eventFail_0_121111111112[color=#40806f,
+                                            process="event Fail( );", issapicrule]:
+     [ State_121111111112( lock, tail, length, nowblock, st, state ) ]
+    --[ Fail( ) ]->
+     [ ]
+  */
+
+rule (modulo E) lookupstateasst_1_12111111[color=#40806f,
+                                           process="lookup state.2 as st.2", issapicrule]:
+   [ State_12111111( lock.1, state.2 ) ] --[ IsNotSet( state.2 ) ]-> [ ]
+
+  /*
+  rule (modulo AC) lookupstateasst_1_12111111[color=#40806f,
+                                              process="lookup state.2 as st.2", issapicrule]:
+     [ State_12111111( lock, state ) ] --[ IsNotSet( state ) ]-> [ ]
+  */
+
+restriction set_in:
+  "∀ x y #t3.
+    (IsIn( x, y ) @ #t3) ⇒
+    (∃ #t2.
+      ((Insert( x, y ) @ #t2) ∧ (#t2 < #t3)) ∧
+      (∀ #t1 yp.
+        (Insert( x, yp ) @ #t1) ⇒ (((#t1 < #t2) ∨ (#t1 = #t2)) ∨ (#t3 < #t1))))"
+
+restriction set_notin:
+  "∀ x #t3.
+    (IsNotSet( x ) @ #t3) ⇒ (∀ #t1 y. (Insert( x, y ) @ #t1) ⇒ (#t3 < #t1))"
+  // safety formula
+
+restriction predicate_eq:
+  "∀ #i a b. (Pred_Eq( a, b ) @ #i) ⇒ (a = b)"
+  // safety formula
+
+restriction predicate_not_eq:
+  "∀ #i a b. (Pred_Not_Eq( a, b ) @ #i) ⇒ (¬(a = b))"
+  // safety formula
+
+restriction single_session:
+  "∀ #i #j. ((Init( ) @ #i) ∧ (Init( ) @ #j)) ⇒ (#i = #j)"
+  // safety formula
+
+restriction locking_0:
+  "∀ p pp l x lp #t1 #t3.
+    ((Lock_0( p, l, x ) @ #t1) ∧ (Lock( pp, lp, x ) @ #t3)) ⇒
+    ((((#t1 < #t3) ∧
+       (∃ #t2.
+         (((((Unlock_0( p, l, x ) @ #t2) ∧ (#t1 < #t2)) ∧ (#t2 < #t3)) ∧
+           (∀ #t0 pp.1. (Unlock( pp.1, l, x ) @ #t0) ⇒ (#t0 = #t2))) ∧
+          (∀ pp.1 lpp #t0.
+            (Lock( pp.1, lpp, x ) @ #t0) ⇒
+            (((#t0 < #t1) ∨ (#t0 = #t1)) ∨ (#t2 < #t0)))) ∧
+         (∀ pp.1 lpp #t0.
+           (Unlock( pp.1, lpp, x ) @ #t0) ⇒
+           (((#t0 < #t1) ∨ (#t2 < #t0)) ∨ (#t2 = #t0))))) ∨
+      (#t3 < #t1)) ∨
+     (#t1 = #t3))"
+
+restriction locking_1:
+  "∀ p pp l x lp #t1 #t3.
+    ((Lock_1( p, l, x ) @ #t1) ∧ (Lock( pp, lp, x ) @ #t3)) ⇒
+    ((((#t1 < #t3) ∧
+       (∃ #t2.
+         (((((Unlock_1( p, l, x ) @ #t2) ∧ (#t1 < #t2)) ∧ (#t2 < #t3)) ∧
+           (∀ #t0 pp.1. (Unlock( pp.1, l, x ) @ #t0) ⇒ (#t0 = #t2))) ∧
+          (∀ pp.1 lpp #t0.
+            (Lock( pp.1, lpp, x ) @ #t0) ⇒
+            (((#t0 < #t1) ∨ (#t0 = #t1)) ∨ (#t2 < #t0)))) ∧
+         (∀ pp.1 lpp #t0.
+           (Unlock( pp.1, lpp, x ) @ #t0) ⇒
+           (((#t0 < #t1) ∨ (#t2 < #t0)) ∨ (#t2 = #t0))))) ∨
+      (#t3 < #t1)) ∨
+     (#t1 = #t3))"
+
+/*
+Generated from:
+Tamarin version 1.10.0
+Maude version 2.7.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2024-10-30 14:56:23.355649243 UTC
+*/
+
+end
+
+==============================================================================
+summary of summaries:
+
+analyzed: code5-N.spthy
+
+  processing time: 37.41s
+  
+  md_block (exists-trace): verified (29 steps)
+
+==============================================================================
